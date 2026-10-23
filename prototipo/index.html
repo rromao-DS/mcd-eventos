@@ -161,6 +161,17 @@ tr.click{cursor:pointer} tr.click:hover td{background:var(--surface-2)}
 .filters{display:flex;gap:10px;flex-wrap:wrap;align-items:end}
 .filters label.f{min-width:150px;flex:1}
 .pager{display:flex;gap:10px;align-items:center;justify-content:flex-end;padding-top:10px;font-size:13px}
+.avatar img{width:100%;height:100%;border-radius:50%;object-fit:cover}
+.sigrow{display:flex;gap:calc(24px*var(--z,1));margin-top:calc(36px*var(--z,1));align-items:flex-end;font-family:var(--font)}
+.sigcol{flex:1.7}.datecol{flex:1}
+.sigfield{position:relative;height:calc(120px*var(--z,1));border:2px dashed #e0a800;background:rgba(244,194,37,.18);border-radius:8px}
+.sigfield canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none;cursor:crosshair}
+.sigfield.done{border:0;background:none;border-bottom:1px solid #999;border-radius:0}
+.sigfield img{width:100%;height:100%;object-fit:contain}
+.sigtag{position:absolute;left:8px;top:6px;font-weight:700;font-size:calc(12px*var(--z,1));color:#8a6400;pointer-events:none}
+.datefield{height:calc(48px*var(--z,1));border:2px dashed #e0a800;background:rgba(244,194,37,.18);border-radius:8px;display:grid;place-items:center;font-weight:600;font-size:calc(13px*var(--z,1));color:#333}
+.datefield.done{border:0;background:none;border-bottom:1px solid #999;border-radius:0;font-size:calc(15px*var(--z,1))}
+.sigline{font-size:calc(11px*var(--z,1));color:#555;margin-top:4px}
 .avatar{width:84px;height:84px;border-radius:50%;display:grid;place-items:center;font-size:28px;font-weight:700;color:#fff;flex:none}
 .notice{border-radius:14px;padding:12px 16px;font-size:14px;border:1px solid var(--border);background:var(--surface-2)}
 .notice.warn{background:var(--warning-bg);color:var(--warning);border-color:transparent}
@@ -226,9 +237,9 @@ const EVENTS=[
  {id:'EVT-OLD',nome:'Evento Arquivado — Demonstração',data:'2026-08-15',inicio:'09:00',fim:'18:00',local:'Local fictício',status:'Arquivado',hue:210,sigla:'ARQUIVO'}
 ];
 const PERFIS={
- admin:{nome:'Administrador MCD',grupos:[FE,INT],convocar:1,assinar:1,reabrir:1,fechar:1,aprovar:1,exportar:1,excecao:1,pii:1},
- coordFE:{nome:'Coordenador — Funcionários do Evento',grupos:[FE],convocar:1,assinar:1,reabrir:1,fechar:1,exportar:1,excecao:1,pii:1},
- coordINT:{nome:'Coordenador — Intermitentes',grupos:[INT],convocar:1,assinar:1,reabrir:1,exportar:1,excecao:1,pii:1},
+ admin:{nome:'Administrador MCD',grupos:[FE,INT],bloquear:1,desbloquear:1,convocar:1,assinar:1,reabrir:1,fechar:1,aprovar:1,exportar:1,excecao:1,pii:1},
+ coordFE:{nome:'Coordenador — Funcionários do Evento',grupos:[FE],bloquear:1,convocar:1,assinar:1,reabrir:1,fechar:1,exportar:1,excecao:1,pii:1},
+ coordINT:{nome:'Coordenador — Intermitentes',grupos:[INT],bloquear:1,convocar:1,assinar:1,reabrir:1,exportar:1,excecao:1,pii:1},
  lider:{nome:'Líder 0801 — Carlos Henrique Pereira',grupos:[FE],assinar:1,solicitar:1,lider:'L0801',pii:1},
  contab:{nome:'Contabilidade / DP',grupos:[FE,INT],aprovar:1,exportar:1}
 };
@@ -256,7 +267,7 @@ addLeader('EVT-003',FE,'BAR','0830');addLeader('EVT-003',FE,'COZINHA','0831');
 const SIGNED_AT='2026-10-25T10:00';
 function mkDocs(done){return [1,2,3].map(n=>({n,nome:'Documento '+n,status:n<=done?'BLOQUEADO':'PENDENTE',versoes:[{v:1,estado:n<=done?'ATIVA':'AGUARDANDO',em:n<=done?SIGNED_AT:null,por:n<=done?'Operador de demonstração':null}]}));}
 const PEOPLE=[];let pid=100;
-function addPerson(o){const p=Object.assign({id:'P'+(pid++),conv:'CONFIRMADO',canal:'EMAIL',form:'CONCLUIDO',presenca:'NAO_REGISTRADA',excecao:null,conferido:false,funcao:'Equipe operacional',turno:'08:00–18:00'},o);p.docs=p.docs||mkDocs(0);PEOPLE.push(p);return p;}
+function addPerson(o){const p=Object.assign({id:'P'+(pid++),conv:'CONFIRMADO',canal:'EMAIL',form:'CONCLUIDO',presenca:'NAO_REGISTRADA',excecao:null,conferido:false,reg:[],funcao:'Equipe operacional',turno:'08:00–18:00'},o);p.docs=p.docs||mkDocs(0);PEOPLE.push(p);return p;}
 /* pessoas do arquivo de exemplo */
 [['P001','EVT-001',FE,'001245','Ana Carolina Souza','BAR','L0801','CONFIRMADO','CONCLUIDO',3,true],
  ['P002','EVT-001',FE,'001246','Pedro Martins Lima','COZINHA','L0802','NAO_RESPONDEU','NAO_INICIADO',0],
@@ -289,6 +300,17 @@ addPerson({evt:'EVT-002',grupo:FE,codigo:'001245',nome:'Ana Carolina Souza',area
 /* cadastro mestre (convidáveis) */
 const MESTRE=[];for(let i=0;i<24;i++)MESTRE.push({codigo:String(7000+i).padStart(6,'0'),nome:nome()});
 MESTRE.push({codigo:'002001',nome:'Patrícia de Oliveira Freitas'});
+/* cadastro persistente por código (dados e foto ficam para os próximos eventos) */
+const CAD={};
+MESTRE.forEach((m,i)=>{if(i%2===0)CAD[m.codigo]={foto:null,completo:true,em:'2026-08-15'}});
+PEOPLE.forEach(p=>{CAD[p.codigo]=CAD[p.codigo]||{foto:null,completo:p.form==='CONCLUIDO',em:'2026-10-23'}});
+/* "Não convocar mais": por pessoa (cadastro mestre), vale para próximos eventos */
+const BLOQ={'007003':{motivos:['Faltou sem justificativa','Atrasos recorrentes'],contexto:'Duas ausências sem aviso em eventos anteriores.',por:'Administrador MCD',em:'2026-09-02'}};
+/* contratos do RH: armazenamento próprio, fora do pacote, do lote e do log do evento */
+const CONTR={};
+['001245','001248','001252','001251'].forEach(c=>CONTR[c]={titulo:'Contrato de trabalho intermitente',status:'PENDENTE'});
+PEOPLE.filter(p=>p.evt==='EVT-001'&&p.grupo===FE&&p.conv==='CONFIRMADO'&&p.form==='CONCLUIDO'&&!CONTR[p.codigo]).forEach(p=>{if(R()<.1)CONTR[p.codigo]={titulo:R()<.5?'Contrato de trabalho intermitente':'Termo de ciência da política de conduta',status:'PENDENTE'}});
+PEOPLE.forEach(p=>{if(p.conferido)p.reg=[{ts:'2026-10-25T09:58',tipo:'PACOTE_ABERTO'},{ts:'2026-10-25T10:09',tipo:'PACOTE_CONFIRMADO'}]});
 /* ---------- estado ---------- */
 const S={perfil:'admin',route:{screen:'login'},offline:false,mes:'2026-10',pg:{},filt:{},dismissed:[],lotes:{},jornada:{},aprov:{},reqs:[],audit:[],showAudit:false,reveal:{},seq:1,fail:false};
 const AUDIT_SEED=[
@@ -316,6 +338,8 @@ const archived=e=>diffDias(BASE,e.data)>30;
 const nowSim=()=>{const d=new Date();return '2026-10-25 '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')};
 const fmtTs=t=>{if(!t)return '—';const [d,h]=t.replace('T',' ').split(' ');return dBR(d)+' '+h};
 const initials=n=>n.split(' ').filter(x=>x.length>2).slice(0,2).map(x=>x[0]).join('');
+const av=p=>{const f=CAD[p.codigo]&&CAD[p.codigo].foto;return `<div class="avatar" style="background:linear-gradient(135deg,hsl(${(+p.codigo*37)%360} 45% 40%),hsl(${(+p.codigo*37+40)%360} 50% 55%))" aria-label="${f?'Foto':'Foto fictícia'}">${f?`<img src="${f}" alt="Foto de ${esc(p.nome)}">`:initials(p.nome)}</div>`};
+const purged=p=>{const l=loteAtual(p.evt,p.grupo);return !!(l&&l.ent&&l.ent.limpeza==='ENTREGUE'&&!l.retificacao)};
 const chip=(t,tone='')=>`<span class="chip ${tone}">${t}</span>`;
 const gkey=(e,g)=>e+'|'+g;
 function toast(msg){const el=$('#toast');el.innerHTML=`<div class="toast" role="status">${esc(msg)}</div>`;clearTimeout(toast.t);toast.t=setTimeout(()=>el.innerHTML='',3200)}
@@ -429,21 +453,18 @@ function vHome(){
      <button class="btn sm" data-act="mes" data-d="-1" aria-label="Mês anterior">‹</button><h2>${MESES[m-1]} de ${y}</h2><button class="btn sm" data-act="mes" data-d="1" aria-label="Próximo mês">›</button></div>
      <div class="cal">${cells}</div>
      <p class="tiny muted" style="margin-top:12px">Data de hoje simulada: ${dBR(BASE)}. Números indicam quantos eventos acontecem no dia. Eventos com mais de 30 dias saem da operação e ficam no Arquivo (hipótese a validar).</p></div>
-   <section style="margin-top:24px"><div class="row between" style="margin-bottom:12px"><h2>Destaques</h2><span class="tiny muted">Avisos e notificações (exemplos; nenhuma notificação real)</span></div>
+   <section style="margin-top:24px"><div class="row between" style="margin-bottom:12px"><h2>Destaques</h2><span class="tiny muted">Avisos do RH e notificações (exemplos; nenhuma notificação real)</span></div>
    ${dest.length?`<div class="grid g3">${dest.map(d=>`<div class="card flat stack" style="gap:8px"><div class="row between">${chip(d.tag,d.tone)}<button class="btn sm ghost" data-act="dismiss" data-id="${d.id}" aria-label="Dispensar aviso">✕</button></div><h4>${esc(d.titulo)}</h4><p class="small muted">${esc(d.desc)}</p>${d.r?`<button class="btn sm" data-act="go" data-r='${esc(JSON.stringify(d.r))}'>${d.cta}</button>`:''}</div>`).join('')}</div>`
    :`<div class="card empty"><div style="font-size:32px">🔔</div><b>Nenhum destaque no momento</b><span class="small">Quando houver avisos, eles aparecem aqui.</span><button class="btn sm" data-act="restore">Restaurar exemplos</button></div>`}
    </section></div>`;
 }
 function destaques(){
-  const out=[];
-  [['EVT-001',FE],['EVT-001',INT],['EVT-002',FE]].forEach(([e,g])=>{
-    const s=stats(e,g),ev=evt(e);
-    out.push({id:'nr-'+e+g,tag:GR[g].nome,tone:g===FE?'fe':'int',titulo:s.nr+' convites sem resposta',desc:ev.nome+' · '+dBR(ev.data),r:{screen:'mod',evt:e,grupo:g,tab:'convocados'},cta:'Abrir convocados'});
-  });
-  const s=stats('EVT-001',FE);
-  out.push({id:'docs',tag:'Funcionários do Evento',tone:'fe',titulo:s.pend+' pacotes aguardando conferência ou assinatura',desc:'Operação Maracanã — acompanhe por área e liderança.',r:{screen:'mod',evt:'EVT-001',grupo:FE,tab:'documentos'},cta:'Ver pendências'});
-  out.push({id:'old',tag:'Arquivo',tone:'',titulo:'1 evento arquivado',desc:'Eventos com mais de 30 dias saem da operação. Nenhum documento é excluído.',r:{screen:'arquivo'},cta:'Abrir Arquivo'});
-  return out;
+  const n=Object.values(CONTR).filter(c=>c.status==='PENDENTE').length;
+  return [
+   {id:'rh1',tag:'RH',tone:'info',titulo:'Contratos aguardando assinatura',desc:n+' pessoas têm contrato do RH pendente. Cada pessoa vê o aviso na própria ficha e assina depois do pacote do evento.'},
+   {id:'rh2',tag:'RH',tone:'info',titulo:'Novo modelo de contrato (exemplo)',desc:'Exemplo de aviso do RH. Avisos do RH não se misturam com o pacote de documentos do evento.'},
+   {id:'sys',tag:'Aviso',tone:'',titulo:'Arquivos dos eventos',desc:'Depois do fechamento do lote, os PDFs vão para o Drive e saem do app. Relatórios continuam disponíveis.'}
+  ];
 }
 function evCard(e){
   const ar=archived(e);
@@ -540,7 +561,7 @@ function tConvocados(e,g){
    <div class="notice info small">Todos os convidados permanecem nesta lista. Quem confirma e conclui o formulário também passa a aparecer na lista operacional (Áreas/Alocação). Recusados e sem resposta <b>não</b> entram na operação.</div>
    <div class="filters">${fq(key,'Código ou nome')}${fsel(key,'conv','Resposta',[['CONFIRMADO','Confirmado'],['NAO_RESPONDEU','Não respondeu'],['NAO_CONFIRMADO','Não confirmado']])}${fsel(key,'form','Formulário',[['CONCLUIDO','Concluído'],['PEND','Pendente']])}${fsel(key,'area','Área',AREAS.map(a=>[a,a]))}${fsel(key,'lider','Liderança',ls.map(l=>[l.id,l.codigo+' — '+l.nome]))}</div>
    ${pg.total?`<div class="tw"><table><thead><tr><th>Código</th><th>Nome completo</th><th>Área prevista</th><th>Liderança</th><th>Resposta</th><th>Formulário</th><th>Operação</th><th></th></tr></thead><tbody>
-   ${pg.items.map(p=>{const l=leader(p.lider);return `<tr class="click" data-act="pessoa" data-id="${p.id}"><td class="mono">${p.codigo}</td><td><b>${esc(p.nome)}</b></td><td>${p.area}</td><td class="small">${l?l.codigo+' — '+esc(l.nome):'—'}</td><td>${convChip(p.conv)}</td><td>${formChip(p)}</td><td>${apto(p)?chip('Apto','ok'):'<span class="small muted">Fora da lista operacional</span>'}</td>
+   ${pg.items.map(p=>{const l=leader(p.lider);return `<tr class="click" data-act="pessoa" data-id="${p.id}"><td class="mono">${p.codigo}</td><td><b>${esc(p.nome)}</b>${BLOQ[p.codigo]?' '+chip('Não convocar mais','bad'):''}</td><td>${p.area}</td><td class="small">${l?l.codigo+' — '+esc(l.nome):'—'}</td><td>${convChip(p.conv)}</td><td>${formChip(p)}</td><td>${apto(p)?chip('Apto','ok'):'<span class="small muted">Fora da lista operacional</span>'}</td>
    <td style="text-align:right" data-stop="1">${can('convocar')&&!apto(p)?`<button class="btn sm" data-act="portal" data-id="${p.id}">${p.conv==='CONFIRMADO'?'Preencher formulário':'Simular resposta'}</button>`:''}</td></tr>`}).join('')}</tbody></table></div>${pager(pg)}`
    :`<div class="card empty"><div style="font-size:36px">📭</div><b>${list.length||!s.total?(s.total?'Nenhum convocado com esses filtros':'Nenhum convocado neste grupo ainda'):'Nenhum resultado'}</b><span class="small">${s.total?'Ajuste os filtros para ver mais pessoas.':'Use “Convidar” para escolher pessoas do cadastro mestre. O envio é simulado.'}</span></div>`}`;
 }
@@ -574,7 +595,7 @@ function tPessoas(e,g){
   return `<div><div class="eyebrow">${GR[g].nome} · ${l.area}</div><h1>Equipe de ${esc(l.nome)} <span class="muted" style="font-weight:500">· ${l.codigo}</span></h1><p class="muted">Somente pessoas aptas desta liderança neste evento (${dBR(e.data)}).</p></div>
   <div class="filters">${fq(key,'Código ou nome')}${fsel(key,'pk','Pacote',[['PEND','Não conferido'],['CONF','Conferido'],['0','0/3'],['1','1/3'],['2','2/3'],['3','3/3']])}</div>
   ${pg.total?`<div class="tw"><table><thead><tr><th>Código</th><th>Nome completo</th><th>Convite</th><th>Formulário</th><th>Presença</th><th>Documentos</th><th>Pacote</th><th></th></tr></thead><tbody>
-  ${pg.items.map(p=>{const k=pacote(p);return `<tr class="click" data-act="pessoa" data-id="${p.id}"><td class="mono">${p.codigo}</td><td><b>${esc(p.nome)}</b></td><td>${convChip(p.conv)}</td><td>${formChip(p)}</td><td class="small muted">Não registrada</td><td>${pp(done(p))}</td><td>${chip((k.lock?'🔒 ':'')+k.label,k.tone)}${p.excecao?' '+chip('Exceção','warn'):''}</td><td style="text-align:right"><button class="btn sm">Abrir ficha</button></td></tr>`}).join('')}</tbody></table></div>${pager(pg)}`
+  ${pg.items.map(p=>{const k=pacote(p);return `<tr class="click" data-act="pessoa" data-id="${p.id}"><td class="mono">${p.codigo}</td><td><b>${esc(p.nome)}</b></td><td>${convChip(p.conv)}</td><td>${formChip(p)}</td><td class="small muted">Não registrada</td><td>${pp(done(p))}</td><td>${chip((k.lock?'🔒 ':'')+k.label,k.tone)}${p.excecao?' '+chip('Exceção','warn'):''}</td><td data-stop="1" style="text-align:right">${!p.conferido&&done(p)<3&&can('assinar')?`<button class="btn sm primary" data-act="sign-next" data-id="${p.id}">Assinar</button> `:''}<button class="btn sm" data-act="pessoa" data-id="${p.id}">Abrir ficha</button></td></tr>`}).join('')}</tbody></table></div>${pager(pg)}`
   :`<div class="card empty"><b>Nenhuma pessoa apta nesta liderança</b><span class="small">Convidados que ainda não confirmaram ou concluíram o formulário não aparecem aqui.</span></div>`}
   ${outros?`<p class="tiny muted">${outros} convidado(s) desta liderança ainda não estão aptos e seguem apenas em Convocados.</p>`:''}`;
 }
@@ -582,14 +603,15 @@ function tPessoas(e,g){
 function tFicha(e,g){
   const p=person(S.route.pid),l=leader(p.lider),k=pacote(p),rev=S.reveal[p.id]&&can('pii');
   const reqs=S.reqs.filter(r=>r.pid===p.id&&r.status==='PENDENTE');
-  const lock=k.lock;
+  const lock=k.lock,ct=CONTR[p.codigo]&&CONTR[p.codigo].status==='PENDENTE'?CONTR[p.codigo]:null,bq=BLOQ[p.codigo];
   return `<div class="card"><div class="row" style="gap:20px;align-items:flex-start">
-   <div class="avatar" style="background:linear-gradient(135deg,hsl(${(+p.codigo*37)%360} 45% 40%),hsl(${(+p.codigo*37+40)%360} 50% 55%))" aria-label="Foto fictícia">${initials(p.nome)}</div>
+   ${av(p)}
    <div class="grow stack" style="gap:6px"><div class="row">${chip(GR[g].nome,GR[g].cls)}${convChip(p.conv)}${formChip(p)}${apto(p)?chip('Apto','ok'):''}</div>
    <h1>${esc(p.nome)}</h1><div class="small muted">Código <b class="mono" style="color:var(--text)">${p.codigo}</b> · Foto fictícia (avatar)</div>
    <div class="grid g3 small" style="margin-top:6px"><div><span class="muted">Grupo</span><br><b>${GR[g].nome}</b></div><div><span class="muted">Área</span><br><b>${p.area}</b></div><div><span class="muted">Liderança</span><br><b>${l?l.codigo+' — '+esc(l.nome):'—'}</b></div><div><span class="muted">Função</span><br><b>${p.funcao}</b></div><div><span class="muted">Turno</span><br><b>${p.turno}</b></div><div><span class="muted">Presença</span><br><b>Não registrada</b></div></div></div></div>
    <details style="margin-top:14px" ${rev?'open':''}><summary>Dados de contato e endereço (acesso restrito)</summary><div class="stack" style="margin-top:10px;gap:8px">
    ${can('pii')?(rev?`<div class="grid g3 small"><div><span class="muted">Telefone</span><br><b>(21) 90000-0000</b></div><div><span class="muted">E-mail</span><br><b>${p.codigo}@exemplo.invalid</b></div><div><span class="muted">Endereço</span><br><b>Rua de Demonstração, s/n — Rio de Janeiro/RJ</b></div></div><span class="tiny muted">Dados fictícios. Na solução real, cada visualização será registrada na auditoria.</span>`:`<button class="btn sm" data-act="reveal" data-id="${p.id}" style="align-self:flex-start">Mostrar dados restritos</button>`):`<div class="notice small">Seu perfil não tem acesso a dados pessoais. Telefone, e-mail e endereço ficam ocultos.</div>`}</div></details></div>
+  ${ct?`<div class="notice info row between"><span>🔔 <b>Aviso do RH:</b> ${esc(ct.titulo)} aguardando assinatura. Abre sozinho quando o pacote do evento for finalizado. <b>Não faz parte</b> do pacote, do lote nem do log do evento.</span><button class="btn sm" data-act="contrato" data-id="${p.id}">Abrir contrato agora</button></div>`:''}
   ${!apto(p)?`<div class="notice warn">Esta pessoa ainda <b>não está apta</b> para a operação (precisa confirmar o convite e concluir o formulário). Os documentos só ficam disponíveis para pessoas aptas.</div>`:''}
   <div class="row between"><h2>Pacote de 3 documentos</h2><div class="row">${pp(done(p))}${chip((lock?'🔒 ':'')+k.label,k.tone)}</div></div>
   <div class="notice small">Nomes e modelos dos documentos são provisórios (<b>A VALIDAR</b> com DP/jurídico). A assinatura desenhada é uma <b>demonstração</b>, sem validade jurídica.</div>
@@ -597,13 +619,17 @@ function tFicha(e,g){
     return `<div class="docc ${d.status==='BLOQUEADO'?'locked':d.status==='EM_CORRECAO'?'corr':''}"><div class="row between"><h3>${d.nome}</h3>${d.status==='BLOQUEADO'?chip('🔒 Assinado e bloqueado','ok'):d.status==='EM_CORRECAO'?chip('Em correção','warn'):chip('Pendente','')}</div>
      <div class="small muted">Versão ${d.status==='BLOQUEADO'&&ativa?ativa.v:v.v}${ativa?` · assinado em ${fmtTs(ativa.em)}<br>Operador: ${esc(ativa.por)}`:''}</div>
      ${d.status==='BLOQUEADO'?`<div class="lock small">Edição bloqueada</div>`:''}
-     <div class="row" style="gap:8px">${d.status==='BLOQUEADO'?`<button class="btn sm" data-act="viewer" data-id="${p.id}" data-n="${d.n}">Ver PDF</button>${can('reabrir')||can('solicitar')?`<button class="btn sm" data-act="reopen" data-id="${p.id}" data-n="${d.n}">${can('reabrir')?'Reabrir (autorizado)':'Solicitar correção'}</button>`:''}`
+     <div class="row" style="gap:8px">${d.status==='BLOQUEADO'?`${purged(p)?'<span class="chip info">PDF arquivado no Drive</span>':`<button class="btn sm" data-act="viewer" data-id="${p.id}" data-n="${d.n}">Ver PDF</button>`}${can('reabrir')||can('solicitar')?`<button class="btn sm" data-act="reopen" data-id="${p.id}" data-n="${d.n}">${can('reabrir')?'Reabrir (autorizado)':'Solicitar correção'}</button>`:''}`
        :`<button class="btn sm primary" data-act="viewer" data-id="${p.id}" data-n="${d.n}" ${apto(p)&&can('assinar')?'':'disabled'}>Abrir e assinar</button>`}</div>
      ${d.versoes.length>1?`<details><summary>Histórico de versões (${d.versoes.length})</summary><div class="small stack" style="gap:4px;margin-top:6px">${d.versoes.slice().reverse().map(x=>`<div>v${x.v} · ${x.estado==='SUBSTITUIDA'?'Substituída (preservada)':x.estado==='ATIVA'?'Ativa':'Aguardando assinatura'}${x.em?' · '+fmtTs(x.em):''}</div>`).join('')}</div></details>`:''}</div>`}).join('')}</div>
   ${reqs.length?`<div class="notice warn"><b>Solicitações de reabertura aguardando autorização:</b> ${reqs.map(r=>`Documento ${r.n} — “${esc(r.motivo)}”`).join('; ')}. ${can('reabrir')?'':'Somente perfil autorizado aprova.'}</div>`:''}
   <div class="card flat"><div class="row between"><div><h3>Conferência do pacote individual</h3><p class="small muted">Disponível quando os 3 documentos estiverem assinados e bloqueados. O fechamento do lote do evento é uma etapa separada.</p></div>
    ${p.conferido?`<span class="lock">🔒 Pacote conferido e bloqueado</span>`:`<button class="btn primary" data-act="conferir" data-id="${p.id}" ${done(p)===3&&can('assinar')?'':'disabled'}>Conferir e bloquear pacote</button>`}</div>
-   ${p.excecao?`<div class="notice warn small" style="margin-top:10px">Exceção aprovada: ${esc(p.excecao)}</div>`:''}</div>`;
+   ${p.excecao?`<div class="notice warn small" style="margin-top:10px">Exceção aprovada: ${esc(p.excecao)}</div>`:''}</div>
+  <div class="card flat"><h3>Registro do pacote <span class="demo-tag">backend simulado</span></h3><p class="small muted">Na solução real, o backend grava dois registros: se o pacote foi aberto e a confirmação do fechamento do pacote. Não grava cada toque na tela.</p>
+   ${p.reg.length?`<div class="tl">${p.reg.map(r=>`<div class="it"><b class="small">${fmtTs(r.ts)}</b><span>${REGL[r.tipo]||r.tipo}${r.det?' · '+esc(r.det):''}</span></div>`).join('')}</div>`:'<p class="small muted" style="margin-top:8px">Nenhum registro ainda: o pacote não foi aberto.</p>'}</div>
+  ${apto(p)?`<div class="row"><button class="btn" data-act="prox" data-id="${p.id}">Próximo pendente da equipe →</button></div>`:''}
+  ${bq?`<div class="notice bad"><b>Não convocar mais</b> (vale para os próximos eventos). ${can('convocar')?'Motivos: '+bq.motivos.map(esc).join(', ')+(bq.contexto?'. Contexto: '+esc(bq.contexto):''):'Os motivos aparecem só para quem convoca.'}<br><span class="small">Registrado por ${esc(bq.por)} em ${dBR(bq.em)}.</span> ${can('desbloquear')?`<button class="btn sm" data-act="desbloquear" data-id="${p.id}">Remover bloqueio</button>`:''}</div>`:(can('bloquear')?`<div class="row"><button class="btn danger sm" data-act="bloquear" data-id="${p.id}">🚫 Não convocar mais esta pessoa</button><span class="small muted">Vale para os próximos eventos. Não remove do evento atual.</span></div>`:'')}`;
 }
 /* --- Documentos / pendências --- */
 function tDocumentos(e,g){
@@ -652,15 +678,15 @@ function tFolha(e,g){
   ${atual?tLote(e,g,atual):`<div class="card empty"><div style="font-size:34px">📦</div><b>Nenhum lote fechado ainda</b><span class="small">Ao fechar, o lote de Funcionários do Evento ganha identificador, versão e manifesto.</span></div>`}
   ${lotes.length>1?`<div class="card flat"><h3>Lotes anteriores (imutáveis)</h3>${lotes.slice(0,-1).map(l=>`<div class="row between small" style="padding:8px 0;border-bottom:1px solid var(--border)"><span><b>${l.id}</b> · fechado em ${fmtTs(l.em)}</span>${chip('Substituído por v'+(l.versao+1),'')}</div>`).join('')}</div>`:''}`;
 }
-const dst=[['banco','Banco de dados e armazenamento de arquivos'],['drive','Google Drive (pasta ano/evento/grupo/versão)'],['contab','Disponível para a contabilidade']];
+const dst=[['banco','Metadados do lote no banco do app (ficam para relatórios e consulta)'],['drive','Arquivos do lote no Google Drive ou Dropbox (pasta ano/evento/grupo/versão)'],['contab','Disponível para a contabilidade'],['limpeza','Remoção dos PDFs do armazenamento do app (só depois da entrega confirmada)']];
 const stChip=s=>s==='ENTREGUE'?chip('Entregue','ok'):s==='PROCESSANDO'?`<span class="chip info"><span class="spin"></span> Processando</span>`:s==='ERRO'?chip('Erro — tentar novamente','bad'):chip('Aguardando','warn');
 function tLote(e,g,l){
   const busy=dst.some(([k])=>l.ent[k]==='PROCESSANDO'),all=dst.every(([k])=>l.ent[k]==='ENTREGUE'),err=dst.some(([k])=>l.ent[k]==='ERRO');
   return `<div class="card"><div class="row between"><div><div class="eyebrow">Lote documental</div><h2>${l.id}</h2></div>${chip(all?'Exportado':'Fechado e bloqueado',all?'ok':'info')}</div>
    <div class="grid g4" style="margin:14px 0">${kpi('v'+l.versao,'Versão')}${kpi(l.pessoas,'Pessoas no manifesto')}${kpi(l.docs,'Documentos no manifesto')}${kpi(l.excecoes,'Exceções aprovadas')}</div>
    <p class="small muted">Fechado em ${fmtTs(l.em)} por ${esc(l.por)} · Grupo: <b>${GR[l.grupo].nome}</b> · contém somente documentos deste grupo e deste evento.</p>
-   <h3 style="margin-top:16px">Entrega simulada</h3><div class="notice warn small" style="margin:8px 0">Nada é enviado de verdade: banco, Google Drive e contabilidade são simulados neste protótipo. “Entregue” só aparece depois do sucesso simulado de cada destino.</div>
-   ${dst.map(([k,t])=>`<div class="check"><span class="ci ${l.ent[k]==='ENTREGUE'?'ok':l.ent[k]==='ERRO'?'no':'wait'}">${l.ent[k]==='ENTREGUE'?'✓':l.ent[k]==='ERRO'?'!':'…'}</span><div><b>${t}</b><div class="small muted">${l.ent[k]==='ENTREGUE'?'Confirmado em '+fmtTs(l.entEm[k])+' (v'+l.versao+')':l.ent[k]==='ERRO'?(l.erro||'Falha simulada'):'Ainda não enviado'}</div></div><div>${stChip(l.ent[k])}</div></div>`).join('')}
+   <h3 style="margin-top:16px">Entrega simulada</h3><div class="notice info small" style="margin:8px 0">Segurança e peso: depois que o Drive e a contabilidade confirmarem o recebimento, os PDFs saem do banco do app. O app guarda apenas os metadados do evento. A guarda dos arquivos passa a ser do Drive e da contabilidade (política a validar).</div><div class="notice warn small" style="margin:8px 0">Nada é enviado de verdade: banco, Google Drive e contabilidade são simulados neste protótipo. “Entregue” só aparece depois do sucesso simulado de cada destino.</div>
+   ${dst.map(([k,t])=>`<div class="check"><span class="ci ${l.ent[k]==='ENTREGUE'?'ok':l.ent[k]==='ERRO'?'no':'wait'}">${l.ent[k]==='ENTREGUE'?'✓':l.ent[k]==='ERRO'?'!':'…'}</span><div><b>${t}</b><div class="small muted">${l.ent[k]==='ENTREGUE'?(k==='limpeza'?'Removidos em '+fmtTs(l.entEm[k])+'. No app ficam só os metadados: manifesto, contagens e hash dos arquivos.':'Confirmado em '+fmtTs(l.entEm[k])+' (v'+l.versao+')'):l.ent[k]==='ERRO'?(l.erro||'Falha simulada'):'Ainda não enviado'}</div></div><div>${k==='limpeza'&&l.ent[k]==='ENTREGUE'?chip('PDFs removidos do app','ok'):stChip(l.ent[k])}</div></div>`).join('')}
    <div class="row" style="margin-top:12px">${all?'':`<button class="btn primary" data-act="enviar" data-m="ok" ${busy||!can('exportar')?'disabled':''}>${err?'Tentar novamente':'Simular envio (sucesso)'}</button><button class="btn" data-act="enviar" data-m="falha" ${busy||err||!can('exportar')?'disabled':''}>Simular falha no Drive</button>`}
    ${all?'<span class="small muted">Para corrigir depois da entrega, é preciso criar uma nova versão do lote; a versão entregue nunca é alterada.</span>':''}</div></div>`;
 }
@@ -668,7 +694,7 @@ function tLote(e,g,l){
 function tRelatorios(e,g){
   const s=stats(e.id,g);
   const rows=AREAS.map(a=>{const ps=aptos(e.id,g).filter(p=>p.area===a);return[a,ps.length,ps.filter(p=>p.conferido).length,ps.filter(p=>!p.conferido&&done(p)>0).length,ps.filter(p=>done(p)===0).length]});
-  return `<div><div class="eyebrow">${GR[g].nome}</div><h1>Relatórios</h1><p class="muted">Dados agregados somente deste grupo e deste evento. Não há exportação combinada entre grupos.</p></div>
+  return `<div><div class="eyebrow">${GR[g].nome}</div><h1>Relatórios</h1><p class="muted">Dados agregados somente deste grupo e deste evento. Não há exportação combinada entre grupos. Os relatórios usam metadados: os PDFs ficam no Drive.</p></div>
   <div class="grid g2"><div class="card flat stack" style="gap:8px"><h3>Convocados</h3>
     ${[['Confirmados',s.conf,'ok'],['Não responderam',s.nr,'warn'],['Não confirmados',s.nc,'bad'],['Formulários pendentes',s.formPend,'warn'],['Aptos',s.aptos,'ok']].map(([t,n,c])=>`<div class="row between"><span>${t}</span>${chip(String(n),c)}</div>`).join('')}
     <button class="btn sm" data-act="download" style="align-self:flex-start">Baixar CSV (simulado)</button></div>
@@ -692,9 +718,9 @@ function tAuditoria(e,g){
 /* --- Arquivo --- */
 function vArquivo(){
   const evs=EVENTS.filter(archived);
-  return `<div class="page">${crumbsHtml()}<h1>Arquivo</h1><p class="muted" style="margin:6px 0 16px">Eventos com mais de 30 dias saem da operação (hipótese: 30 dias corridos da data do evento, A VALIDAR). Documentos, lotes e histórico são preservados. Não há exclusão automática.</p>
+  return `<div class="page">${crumbsHtml()}<h1>Arquivo</h1><p class="muted" style="margin:6px 0 16px">Eventos com mais de 30 dias saem da operação (hipótese: 30 dias corridos da data do evento, A VALIDAR). Metadados, lotes e histórico ficam no app. Os PDFs ficam no Drive depois da entrega confirmada e saem do armazenamento do app.</p>
   <div class="notice info" style="margin-bottom:16px">Acesso somente leitura conforme o perfil. Prazo de retenção legal/contratual será definido com jurídico, DP e LGPD.</div>
-  ${evs.length?`<div class="grid g3">${evs.map(e=>`<div class="card flat stack"><div class="banner" style="margin:-20px -20px 0;border-radius:var(--r-card) var(--r-card) 0 0;background:linear-gradient(135deg,hsl(${e.hue} 20% 38%),hsl(${e.hue} 20% 55%))">${esc(e.sigla)}</div><div class="row">${chip('Arquivado')}${chip('Somente leitura')}</div><h3>${esc(e.nome)}</h3><p class="small muted">${dBR(e.data)} · há ${diffDias(BASE,e.data)} dias</p><p class="small">Documentos e lotes preservados: <b>Funcionários do Evento</b> e <b>Intermitentes</b> (cada grupo com seu lote).</p><button class="btn sm" data-act="arq-view" data-id="${e.id}">Consultar (simulado)</button></div>`).join('')}</div>`:'<div class="card empty"><b>Nenhum evento arquivado</b></div>'}</div>`;
+  ${evs.length?`<div class="grid g3">${evs.map(e=>`<div class="card flat stack"><div class="banner" style="margin:-20px -20px 0;border-radius:var(--r-card) var(--r-card) 0 0;background:linear-gradient(135deg,hsl(${e.hue} 20% 38%),hsl(${e.hue} 20% 55%))">${esc(e.sigla)}</div><div class="row">${chip('Arquivado')}${chip('Somente leitura')}</div><h3>${esc(e.nome)}</h3><p class="small muted">${dBR(e.data)} · há ${diffDias(BASE,e.data)} dias</p><p class="small">PDFs no Drive; no app ficam só os metadados de <b>Funcionários do Evento</b> e <b>Intermitentes</b> (cada grupo com seu lote).</p><button class="btn sm" data-act="arq-view" data-id="${e.id}">Consultar (simulado)</button></div>`).join('')}</div>`:'<div class="card empty"><b>Nenhum evento arquivado</b></div>'}</div>`;
 }
 /* ---------- render ---------- */
 function render(){
@@ -715,44 +741,69 @@ function dialog({title,body,actions,wide}){
 const closeDlg=()=>{$('#dialog').innerHTML=''};
 const confirmDlg=(title,body,ok,fn,cls='primary')=>dialog({title,body:`<p>${body}</p>`,actions:[{label:'Cancelar',fn:closeDlg},{label:ok,cls,fn:()=>{closeDlg();fn()}}]});
 /* ---------- visualizador e assinatura ---------- */
-const V={drawn:false,z:1};
-function openViewer(id,n){
-  const p=person(id),d=p.docs[n-1],e=evt(p.evt),locked=d.status==='BLOQUEADO',ativa=d.versoes.find(x=>x.estado==='ATIVA');
-  V.drawn=false;V.z=1;V.id=id;V.n=n;
-  const txt=[['1','O trabalhador declara ciência das condições da prestação de serviço no evento indicado, na data e no turno informados.'],['2','As informações cadastrais prestadas são verdadeiras e foram conferidas pelo operador no momento da assinatura.'],['3','Este texto é fictício e serve apenas para demonstrar a leitura, a rolagem e o zoom do documento.'],['4','O conteúdo e o modelo definitivos do documento serão definidos pelo DP e pelo jurídico (A VALIDAR).']];
-  $('#modal').innerHTML=`<div class="viewer" role="dialog" aria-modal="true" aria-label="${d.nome}">
-   <div class="vh"><div><div class="eyebrow">${GR[p.grupo].nome} · ${esc(e.nome)}</div><b>${d.nome}</b> <span class="muted small">· ${p.codigo} — ${esc(p.nome)}</span></div>
+const V={drawn:false,z:1,pen:false};
+const REGL={PACOTE_ABERTO:'Pacote aberto',PACOTE_CONFIRMADO:'Fechamento do pacote confirmado',DOCUMENTO_ABERTO:'Documento aberto',DOCUMENTO_ASSINADO:'Documento assinado e bloqueado',DOCUMENTO_REABERTO:'Documento reaberto (versão anterior preservada)'};
+function reg(p,tipo,det){p.reg.push({ts:nowSim().replace(' ','T'),tipo,det})}
+function openViewer(id,n,mode){
+  const contrato=mode==='contrato',p=person(id),e=evt(p.evt);
+  const d=contrato?null:p.docs[n-1],ct=contrato?CONTR[p.codigo]:null;
+  const locked=contrato?ct.status==='ASSINADO':d.status==='BLOQUEADO';
+  const ativa=contrato?null:d.versoes.find(x=>x.estado==='ATIVA');
+  const sig=contrato?ct.sig:(ativa&&ativa.sig),when=contrato?ct.em:(ativa&&ativa.em);
+  const titulo=contrato?ct.titulo:d.nome;
+  V.drawn=false;V.z=1;V.id=id;V.n=n;V.contrato=contrato;
+  if(!contrato&&!locked){const v=d.versoes[d.versoes.length-1];if(!v.aberto){v.aberto=1;reg(p,'DOCUMENTO_ABERTO',d.nome+' v'+v.v)}}
+  const txt=contrato
+   ?['A contratada e o trabalhador ajustam a prestação de serviços de forma intermitente, conforme convocações futuras.','O trabalhador poderá aceitar ou recusar convocações, sem que a recusa gere penalidade.','Este texto é fictício e serve apenas para demonstrar o contrato do RH, separado do pacote do evento.','O modelo definitivo será definido pelo RH e pelo jurídico (A VALIDAR).']
+   :['O trabalhador declara ciência das condições da prestação de serviço no evento indicado, na data e no turno informados.','As informações cadastrais prestadas são verdadeiras e foram conferidas pelo operador no momento da assinatura.','Este texto é fictício e serve apenas para demonstrar a leitura, a rolagem e o zoom do documento.','O conteúdo e o modelo definitivos do documento serão definidos pelo DP e pelo jurídico (A VALIDAR).'];
+  const clauses=txt.concat(txt).map((t,i)=>`<p style="margin-bottom:12px"><b>${i+1}.</b> ${t}</p>`).join('');
+  const campo=locked
+    ?`<div class="sigfield done" id="sigfield">${sig?`<img src="${sig}" alt="Assinatura">`:`<span class="sigtag" style="color:#2F8C67">✔ Assinado (assinatura de exemplo)</span>`}</div>`
+    :`<div class="sigfield" id="sigfield"><canvas id="sig" width="900" height="360" aria-label="Campo de assinatura"></canvas><span class="sigtag" id="sigtag">✍ Assine aqui com a caneta</span></div>`;
+  $('#modal').innerHTML=`<div class="viewer" role="dialog" aria-modal="true" aria-label="${esc(titulo)}">
+   <div class="vh"><div><div class="eyebrow" ${contrato?'style="color:var(--warning)"':''}>${contrato?'Contrato do RH · fora do pacote do evento':GR[p.grupo].nome+' · '+esc(e.nome)}</div><b>${esc(titulo)}</b> <span class="muted small">· ${p.codigo} — ${esc(p.nome)}</span></div>
    <div class="row"><button class="btn sm" id="vo" data-act="offline">${S.offline?'Voltar online':'Simular sem conexão'}</button><button class="btn sm" data-act="zoom" data-d="-0.15" aria-label="Diminuir zoom">−</button><button class="btn sm" data-act="zoom" data-d="0.15" aria-label="Aumentar zoom">＋</button><button class="btn sm primary" data-act="closeviewer">Fechar</button></div></div>
-   <div class="vb"><div class="pdfwrap"><article class="pdfpage" id="pdfpage"><div class="wm">DEMONSTRAÇÃO</div><h4>${d.nome.toUpperCase()} — MODELO ${n}</h4><p style="text-align:center;margin-bottom:16px;font-size:.85em">${esc(e.nome)} · ${dBR(e.data)} · ${esc(e.local)}</p>
-    <p><b>Trabalhador:</b> ${esc(p.nome)} (código ${p.codigo})<br><b>Grupo:</b> ${GR[p.grupo].nome} · <b>Área:</b> ${p.area} · <b>Turno:</b> ${p.turno}</p><br>
-    ${txt.map(([a,t])=>`<p style="margin-bottom:12px"><b>${a}.</b> ${t}</p>`).join('')}${txt.map(([a,t])=>`<p style="margin-bottom:12px"><b>${+a+4}.</b> ${t}</p>`).join('')}
-    <div style="margin-top:36px;border-top:1px solid #999;width:60%;padding-top:6px;font-size:.9em">${locked&&ativa?`✔ Assinado em ${fmtTs(ativa.em)} · v${ativa.v}`:'Assinatura do trabalhador'}</div></article></div>
-   <aside class="sigpanel">${locked?`<div class="notice ok"><b>🔒 Documento assinado e bloqueado.</b><br>Versão ${ativa.v} · ${fmtTs(ativa.em)}<br>Operador: ${esc(ativa.por)}</div><p class="small muted">Para corrigir, use “Reabrir” na ficha. A versão atual será preservada no histórico.</p>`:
+   ${contrato?`<div class="notice warn small" style="border-radius:0;border-left:0;border-right:0"><b>Fora do pacote do evento.</b> Este contrato é do RH: não entra no lote, no fechamento nem no log do evento, e é guardado à parte.</div>`:''}
+   <div class="vb"><div class="pdfwrap"><article class="pdfpage" id="pdfpage"><div class="wm">DEMONSTRAÇÃO</div><h4>${esc(titulo.toUpperCase())}</h4>
+    <p style="text-align:center;margin-bottom:16px;font-size:.85em">${contrato?'Contrato do RH · MCD Contabilidade Consultiva':esc(e.nome)+' · '+dBR(e.data)+' · '+esc(e.local)}</p>
+    <p><b>Trabalhador:</b> ${esc(p.nome)} (código ${p.codigo})${contrato?'':`<br><b>Grupo:</b> ${GR[p.grupo].nome} · <b>Área:</b> ${p.area} · <b>Turno:</b> ${p.turno}`}</p><br>
+    ${clauses}
+    <div class="sigrow"><div class="sigcol">${campo}<div class="sigline">Assinatura do trabalhador</div></div>
+    <div class="datecol"><div class="datefield ${locked?'done':''}" id="datefield">${locked&&when?dBR(when.slice(0,10)):'Preenchida ao confirmar'}</div><div class="sigline">Data</div></div></div></article></div>
+   <aside class="sigpanel">${locked?`<div class="notice ok"><b>🔒 ${contrato?'Contrato assinado.':'Documento assinado e bloqueado.'}</b><br>${contrato?'':'Versão '+ativa.v+' · '}${fmtTs(when)}${contrato?'':'<br>Operador: '+esc(ativa.por)}</div>${contrato?'':'<p class="small muted">Para corrigir, use “Reabrir” na ficha. A versão atual será preservada no histórico.</p>'}`:
     `<h3>Assinatura</h3><div class="notice warn small"><b>Demonstração:</b> esta assinatura desenhada não tem validade jurídica.</div>
-     <p class="small muted">1. Leia o documento ao lado. 2. Peça ao trabalhador para assinar com o dedo ou a caneta. 3. Confirme.</p>
-     <canvas id="sig" class="sigpad" width="700" height="380" aria-label="Área de assinatura"></canvas>
+     <ol class="small muted" style="margin:0;padding-left:18px"><li>Leia o PDF.</li><li>O trabalhador assina com a caneta no campo amarelo.</li><li>Confirme. A data é preenchida automaticamente.</li></ol>
+     <button class="btn" data-act="gotosig">↓ Ir ao campo de assinatura</button>
      <div id="sigerr" class="notice bad small" hidden></div>
      <div class="row"><button class="btn sm" data-act="sigclear">Limpar</button><button class="btn primary grow" id="sigok" data-act="sigconfirm" disabled>Confirmar assinatura</button></div>
-     <p class="tiny muted">Depois de confirmar, o documento fica bloqueado para edição.</p>`}</aside></div></div>`;
+     ${contrato?'<button class="btn ghost" data-act="closeviewer">Assinar depois</button>':''}
+     <p class="tiny muted">Com caneta: o toque da palma da mão é ignorado depois que a caneta é detectada. ${contrato?'':'Depois de confirmar, o documento fica bloqueado e o próximo documento do pacote abre sozinho.'}</p>`}</aside></div></div>`;
   if(!locked)initSig();
 }
 function initSig(){
-  const c=$('#sig');if(!c)return;const x=c.getContext('2d');x.lineWidth=4;x.lineCap='round';x.strokeStyle='#1b2b33';let down=false;
+  const c=$('#sig');if(!c)return;const x=c.getContext('2d');x.lineCap='round';x.lineJoin='round';x.strokeStyle='#14232b';let down=false,last=null;
   const pos=ev=>{const r=c.getBoundingClientRect();return[(ev.clientX-r.left)*c.width/r.width,(ev.clientY-r.top)*c.height/r.height]};
-  c.addEventListener('pointerdown',ev=>{down=true;c.setPointerCapture(ev.pointerId);const[a,b]=pos(ev);x.beginPath();x.moveTo(a,b)});
-  c.addEventListener('pointermove',ev=>{if(!down)return;const[a,b]=pos(ev);x.lineTo(a,b);x.stroke();if(!V.drawn){V.drawn=true;$('#sigok').disabled=false}});
+  const mark=()=>{if(!V.drawn){V.drawn=true;$('#sigok').disabled=false;const t=$('#sigtag');if(t)t.hidden=true}};
+  c.addEventListener('pointerdown',ev=>{if(ev.pointerType==='pen')V.pen=true;if(ev.pointerType==='touch'&&V.pen)return;down=true;c.setPointerCapture(ev.pointerId);last=pos(ev);x.lineWidth=4;x.beginPath();x.moveTo(last[0],last[1]);x.lineTo(last[0]+.1,last[1]+.1);x.stroke();mark()});
+  c.addEventListener('pointermove',ev=>{if(!down)return;if(ev.pointerType==='touch'&&V.pen)return;const q=pos(ev);x.lineWidth=ev.pointerType==='pen'&&ev.pressure?2+ev.pressure*6:4;x.beginPath();x.moveTo(last[0],last[1]);x.lineTo(q[0],q[1]);x.stroke();last=q});
   const up=()=>{down=false};c.addEventListener('pointerup',up);c.addEventListener('pointercancel',up);
 }
 function sigConfirm(){
-  const p=person(V.id),d=p.docs[V.n-1];
+  const p=person(V.id),contrato=V.contrato,d=contrato?null:p.docs[V.n-1];
   if(!V.drawn)return;
   if(S.offline){const el=$('#sigerr');el.hidden=false;el.textContent='Sem conexão: a assinatura NÃO foi confirmada. O desenho foi mantido nesta tela; tente novamente quando voltar a conexão.';return}
-  confirmDlg('Confirmar assinatura?',`Após confirmar, o <b>${d.nome}</b> de <b>${esc(p.nome)}</b> será bloqueado para edição. Esta é uma assinatura de demonstração.`,'Confirmar e bloquear',()=>{
+  confirmDlg('Confirmar assinatura?',`Após confirmar, ${contrato?'o <b>contrato</b>':'o <b>'+d.nome+'</b>'} de <b>${esc(p.nome)}</b> será bloqueado e a data de hoje será registrada. Esta é uma assinatura de demonstração.`,'Confirmar e bloquear',()=>{
+    const url=$('#sig').toDataURL('image/png'),agora=nowSim().replace(' ','T');
+    if(contrato){const ct=CONTR[p.codigo];ct.status='ASSINADO';ct.em=agora;ct.sig=url;toast('Contrato assinado. Ele fica à parte do pacote do evento.');$('#modal').innerHTML='';render();return}
     if(d.status==='BLOQUEADO')return;
-    const v=d.versoes[d.versoes.length-1];v.estado='ATIVA';v.em=nowSim().replace(' ','T');v.por=PERFIS[S.perfil].nome;d.status='BLOQUEADO';
-    log(p.grupo,p.evt,'CONFIRMOU_ASSINATURA',`DOC-${d.n} / ${p.id}`,'');
-    toast(`${d.nome} assinado e bloqueado (${done(p)}/3)`);
-    openViewer(p.id,d.n);render();
+    const v=d.versoes[d.versoes.length-1];v.estado='ATIVA';v.em=agora;v.por=PERFIS[S.perfil].nome;v.sig=url;d.status='BLOQUEADO';
+    reg(p,'DOCUMENTO_ASSINADO',d.nome+' v'+v.v);log(p.grupo,p.evt,'CONFIRMOU_ASSINATURA',`DOC-${d.n} / ${p.id}`,'');
+    const prox=p.docs.find(x=>x.status!=='BLOQUEADO');
+    if(prox){toast(`${d.nome} assinado (${done(p)}/3). Abrindo o ${prox.nome}.`);openViewer(p.id,prox.n);render();return}
+    $('#modal').innerHTML='';render();
+    const ct=CONTR[p.codigo];
+    if(ct&&ct.status==='PENDENTE'){toast('Pacote 3/3. Abrindo o contrato do RH, que fica fora do pacote.');setTimeout(()=>openViewer(p.id,0,'contrato'),400)}
+    else toast('Pacote 3/3 assinado. Falta conferir e bloquear o pacote.');
   });
 }
 /* ---------- ações ---------- */
@@ -769,23 +820,23 @@ const ACT={
  tab(el){const r=S.route;go({screen:'mod',evt:r.evt,grupo:r.grupo,tab:el.dataset.t})},
  area(el){const r=S.route;go({screen:'mod',evt:r.evt,grupo:r.grupo,tab:'areas',area:el.dataset.a})},
  lider(el){const r=S.route;go({screen:'mod',evt:r.evt,grupo:r.grupo,tab:'areas',area:r.area,lider:el.dataset.id})},
- pessoa(el){const r=S.route,p=person(el.dataset.id);go({screen:'mod',evt:r.evt,grupo:r.grupo,tab:r.tab,area:r.tab==='areas'?p.area:undefined,lider:r.tab==='areas'?p.lider:undefined,pid:p.id})},
+ pessoa(el){const r=S.route,p=person(el.dataset.id);if(apto(p)&&!p.reg.some(x=>x.tipo==='PACOTE_ABERTO'))reg(p,'PACOTE_ABERTO');go({screen:'mod',evt:r.evt,grupo:r.grupo,tab:r.tab,area:r.tab==='areas'?p.area:undefined,lider:r.tab==='areas'?p.lider:undefined,pid:p.id})},
  page(el){S.pg[el.dataset.k]=(S.pg[el.dataset.k]||0)+ +el.dataset.d;render()},
  reveal(el){S.reveal[el.dataset.id]=1;log(S.route.grupo,S.route.evt,'VISUALIZOU_DADOS_RESTRITOS',el.dataset.id,'');render()},
  download(){toast('Download simulado: nenhum arquivo foi gerado')},
- 'arq-view'(el){const e=evt(el.dataset.id);dialog({title:e.nome,wide:1,body:`<div class="notice info small">Evento arquivado há ${diffDias(BASE,e.data)} dias. Somente leitura.</div><div class="grid g2"><div class="card flat"><h4>${GR[FE].nome}</h4><p class="small muted">Lote v1 preservado · PDFs e histórico mantidos.</p></div><div class="card flat"><h4>${GR[INT].nome}</h4><p class="small muted">Lote próprio preservado · PDFs e histórico mantidos.</p></div></div><p class="small muted">Os grupos continuam separados também no arquivo. Nenhum documento é excluído automaticamente.</p>`,actions:[{label:'Fechar',cls:'primary',fn:closeDlg}]})},
+ 'arq-view'(el){const e=evt(el.dataset.id);dialog({title:e.nome,wide:1,body:`<div class="notice info small">Evento arquivado há ${diffDias(BASE,e.data)} dias. Somente leitura.</div><div class="grid g2"><div class="card flat"><h4>${GR[FE].nome}</h4><p class="small muted">Lote v1: metadados no app, PDFs no Drive.</p></div><div class="card flat"><h4>${GR[INT].nome}</h4><p class="small muted">Lote próprio: metadados no app, PDFs no Drive.</p></div></div><p class="small muted">Os grupos continuam separados também no arquivo. O app não guarda os PDFs depois da entrega; a política de retenção do Drive será definida com jurídico e DP.</p>`,actions:[{label:'Fechar',cls:'primary',fn:closeDlg}]})},
  invite(){
   const r=S.route,e=evt(r.evt),g=r.grupo,ls=LEADERS.filter(l=>l.evt===e.id&&l.grupo===g);
-  const livres=MESTRE.filter(m=>!PEOPLE.some(p=>p.evt===e.id&&p.grupo===g&&p.codigo===m.codigo));
+  const livres=MESTRE.filter(m=>!PEOPLE.some(p=>p.evt===e.id&&p.grupo===g&&p.codigo===m.codigo));const nb=livres.filter(m=>BLOQ[m.codigo]).length;
   dialog({title:'Nova convocação — '+GR[g].nome,wide:1,body:`<div class="notice ${GR[g].cls==='fe'?'info':'int'} small">Evento: <b>${esc(e.nome)}</b> · Grupo: <b>${GR[g].nome}</b> (fixos). O envio é simulado.</div>
-   <label class="f">Pessoa (cadastro mestre)<select id="iv-p">${livres.map(m=>`<option value="${m.codigo}">${m.codigo} — ${esc(m.nome)}</option>`).join('')}</select></label>
+   <label class="f">Pessoa (cadastro mestre)<select id="iv-p">${livres.map(m=>BLOQ[m.codigo]?`<option value="${m.codigo}" disabled>${m.codigo} — ${esc(m.nome)} (não convocar mais)</option>`:`<option value="${m.codigo}">${m.codigo} — ${esc(m.nome)}${CAD[m.codigo]&&CAD[m.codigo].completo?' ✓ cadastro completo':''}</option>`).join('')}</select></label><p class="tiny muted">✓ = dados e foto já cadastrados: persistem entre eventos e voltam preenchidos no formulário.${nb?' '+nb+' pessoa(s) marcada(s) como “não convocar mais” aparecem bloqueadas.':''}</p>
    <div class="grid g2"><label class="f">Área<select id="iv-a">${AREAS.map(a=>`<option>${a}</option>`).join('')}</select></label><label class="f">Liderança<select id="iv-l">${ls.map(l=>`<option value="${l.id}">${l.codigo} — ${esc(l.nome)}</option>`).join('')}</select></label>
    <label class="f">Função<input type="text" id="iv-f" value="Equipe operacional"></label><label class="f">Turno<input type="text" id="iv-t" value="08:00–18:00"></label></div>
    <label class="f">Canal<select id="iv-c"><option value="EMAIL">E-mail (simulado)</option><option value="PORTAL">Aplicativo / portal (simulado)</option></select></label>`,
    actions:[{label:'Cancelar',fn:closeDlg},{label:'Simular envio',cls:'primary',fn:()=>{
     const cod=$('#iv-p').value,lid=$('#iv-l').value;if(!cod||!lid){toast('Escolha a pessoa e a liderança');return}
     const outro=PEOPLE.find(p=>p.evt===e.id&&p.grupo!==g&&p.codigo===cod);
-    const fazer=()=>{const m=MESTRE.find(x=>x.codigo===cod);addPerson({evt:e.id,grupo:g,codigo:cod,nome:m.nome,area:$('#iv-a')?$('#iv-a').value:'BAR',lider:lid,conv:'NAO_RESPONDEU',form:'NAO_INICIADO',canal:$('#iv-c')?$('#iv-c').value:'EMAIL',funcao:'Equipe operacional'});log(g,e.id,'CONVOCOU',cod,'');closeDlg();toast('Convite simulado: '+m.nome+' agora está como “Não respondeu”');render()};
+    const fazer=()=>{const m=MESTRE.find(x=>x.codigo===cod);CAD[cod]=CAD[cod]||{foto:null,completo:false,em:BASE};addPerson({evt:e.id,grupo:g,codigo:cod,nome:m.nome,area:$('#iv-a')?$('#iv-a').value:'BAR',lider:lid,conv:'NAO_RESPONDEU',form:'NAO_INICIADO',canal:$('#iv-c')?$('#iv-c').value:'EMAIL',funcao:'Equipe operacional'});log(g,e.id,'CONVOCOU',cod,'');closeDlg();toast('Convite simulado: '+m.nome+' agora está como “Não respondeu”');render()};
     const area=$('#iv-a').value;if(outro){dialog({title:'Possível conflito entre grupos',body:`<div class="notice warn"><b>${esc(outro.nome)}</b> já participa deste evento no grupo <b>${GR[outro.grupo].nome}</b>. Nenhuma migração é feita automaticamente: a decisão é administrativa.</div>`,actions:[{label:'Cancelar',fn:closeDlg},{label:'Registrar mesmo assim',cls:'primary',fn:()=>{const v=area;const m=MESTRE.find(x=>x.codigo===cod);addPerson({evt:e.id,grupo:g,codigo:cod,nome:m.nome,area:v,lider:lid,conv:'NAO_RESPONDEU',form:'NAO_INICIADO'});log(g,e.id,'CONVOCOU_COM_ALERTA_DE_CONFLITO',cod,'Decisão administrativa');closeDlg();toast('Convite simulado, com alerta de conflito registrado');render()}}]});return}
     fazer();}}]});
  },
@@ -797,18 +848,38 @@ const ACT={
             {label:'Confirmar participação',cls:'primary',fn:()=>{p.conv='CONFIRMADO';p.form='PENDENTE';log(p.grupo,p.evt,'RESPOSTA_CONVITE',p.id,'Confirmado');closeDlg();toast('Confirmado. O formulário ficou pendente: ainda não está apto.');render()}}]});
  },
  form(el){
-  const p=person(el.dataset.id);
+  const p=person(el.dataset.id),c=CAD[p.codigo]||(CAD[p.codigo]={foto:null,completo:false,em:BASE});DLG.foto=null;
   dialog({title:'Formulário de cadastro',wide:1,body:`<div class="notice info small">Concluir o formulário não gera assinatura nem presença. Campos de demonstração (a lista real será definida com o DP).</div>
+   ${c.completo?`<div class="notice ok small">✓ Dados e foto recuperados do cadastro (última atualização em ${dBR(c.em)}). Basta conferir.</div>`:`<div class="notice info small">Primeiro cadastro: capture a foto. Dados e foto ficam guardados para os próximos eventos.</div>`}
+   <div class="row" style="gap:16px;align-items:center"><div id="fm-prev" class="avatar" style="width:72px;height:72px;font-size:22px;background:var(--primary)">${c.foto?`<img src="${c.foto}" alt="Foto">`:initials(p.nome)}</div>
+   <label class="f grow">Foto do trabalhador (câmera do tablet)<input type="file" accept="image/*" capture="user" id="fm-foto" data-in="foto"></label></div>
    <div class="grid g2"><label class="f">Nome completo<input type="text" value="${esc(p.nome)}"></label><label class="f">Telefone<input type="text" value="(21) 90000-0000"></label><label class="f">E-mail<input type="text" value="${p.codigo}@exemplo.invalid"></label><label class="f">Endereço<input type="text" value="Rua de Demonstração, s/n"></label></div>
-   <label class="row" style="gap:8px"><input type="checkbox" id="fm-ok"> Confirmo que os dados acima estão corretos (consentimentos a validar)</label>`,
-   actions:[{label:'Fechar',fn:closeDlg},{label:'Concluir formulário',cls:'primary',fn:()=>{if(!$('#fm-ok').checked){toast('Marque a confirmação para concluir');return}p.form='CONCLUIDO';log(p.grupo,p.evt,'CONCLUIU_FORMULARIO',p.id,'');closeDlg();toast(p.nome+' agora está apto e entra na lista operacional');render()}}]});
+   <label class="row" style="gap:8px"><input type="checkbox" id="fm-ok"> Confirmo que os dados acima estão corretos (consentimento para guardar dados e foto: texto a validar com jurídico/LGPD)</label>`,
+   actions:[{label:'Fechar',fn:closeDlg},{label:'Concluir formulário',cls:'primary',fn:()=>{if(!$('#fm-ok').checked){toast('Marque a confirmação para concluir');return}p.form='CONCLUIDO';CAD[p.codigo]={foto:DLG.foto||c.foto||null,completo:true,em:BASE};log(p.grupo,p.evt,'CONCLUIU_FORMULARIO',p.id,'');closeDlg();toast(p.nome+' agora está apto. Dados e foto ficam guardados para os próximos eventos.');render()}}]});
  },
+ gotosig(){const f=$('#sigfield');if(f)f.scrollIntoView({block:'center',behavior:'smooth'})},
+ contrato(el){openViewer(el.dataset.id,0,'contrato')},
+ 'sign-next'(el){const p=person(el.dataset.id),d=p.docs.find(x=>x.status!=='BLOQUEADO');if(d)openViewer(p.id,d.n)},
+ prox(el){const p=person(el.dataset.id),l=aptos(p.evt,p.grupo).filter(q=>q.lider===p.lider&&!q.conferido&&!q.excecao&&q.id!==p.id);if(!l.length){toast('Não há mais pendentes nesta equipe');return}ACT.pessoa({dataset:{id:l[0].id}})},
+ chip(el){const on=el.getAttribute('aria-pressed')==='true';el.setAttribute('aria-pressed',on?'false':'true');el.classList.toggle('primary',!on)},
+ bloquear(el){
+  const p=person(el.dataset.id),M=['Faltou sem justificativa','Atrasos recorrentes','Desempenho abaixo do esperado','Conduta inadequada','Documentação irregular','Pediu para não ser chamado','Outro'];
+  dialog({title:'Não convocar mais: '+p.nome,body:`<div class="notice warn small">Vale para os <b>próximos</b> eventos: a pessoa deixa de ser oferecida na lista de convite. O evento atual não muda. Registre apenas fatos objetivos.</div>
+   <div><div class="small" style="font-weight:600;margin-bottom:8px">Motivos (escolha um ou mais)</div><div class="row" id="bq-m" style="gap:8px">${M.map(m=>`<button type="button" class="btn sm" data-act="chip" aria-pressed="false" data-v="${m}">${m}</button>`).join('')}</div></div>
+   <label class="f">Mais contexto<textarea id="bq-c" placeholder="O que aconteceu, quando e em qual evento"></textarea></label><div id="bq-e" class="notice bad small" hidden></div>`,
+   actions:[{label:'Cancelar',fn:closeDlg},{label:'Confirmar bloqueio',cls:'danger',fn:()=>{
+    const sel=[...document.querySelectorAll('#bq-m [aria-pressed=true]')].map(x=>x.dataset.v),c=$('#bq-c').value.trim(),er=$('#bq-e');
+    if(!sel.length){er.hidden=false;er.textContent='Escolha ao menos um motivo.';return}
+    if(sel.includes('Outro')&&c.length<5){er.hidden=false;er.textContent='Explique em “Mais contexto”.';return}
+    BLOQ[p.codigo]={motivos:sel,contexto:c,por:PERFIS[S.perfil].nome,em:BASE};log(p.grupo,p.evt,'MARCOU_NAO_CONVOCAR_MAIS',p.codigo,sel.join(', ')+(c?' — '+c:''));closeDlg();toast(p.nome+' não será mais oferecida para convite');render()}}]});
+ },
+ desbloquear(el){const p=person(el.dataset.id);delete BLOQ[p.codigo];log(p.grupo,p.evt,'REMOVEU_NAO_CONVOCAR_MAIS',p.codigo,'');toast('Bloqueio removido');render()},
  viewer(el){openViewer(el.dataset.id,+el.dataset.n)},
  closeviewer(){$('#modal').innerHTML='';render()},
  zoom(el){V.z=Math.max(.6,Math.min(1.8,V.z+ +el.dataset.d));$('#pdfpage').style.setProperty('--z',V.z)},
- sigclear(){const c=$('#sig');c.getContext('2d').clearRect(0,0,c.width,c.height);V.drawn=false;$('#sigok').disabled=true},
+ sigclear(){const c=$('#sig');c.getContext('2d').clearRect(0,0,c.width,c.height);V.drawn=false;$('#sigok').disabled=true;const t=$('#sigtag');if(t)t.hidden=false},
  sigconfirm(){sigConfirm()},
- conferir(el){const p=person(el.dataset.id);confirmDlg('Conferir e bloquear o pacote?',`O pacote individual de <b>${esc(p.nome)}</b> (3/3) será conferido e bloqueado. Isso não fecha o lote do evento.`,'Conferir e bloquear',()=>{p.conferido=true;log(p.grupo,p.evt,'CONFERIU_PACOTE','PACOTE / '+p.id,'');toast('Pacote conferido e bloqueado');render()})},
+ conferir(el){const p=person(el.dataset.id);confirmDlg('Conferir e bloquear o pacote?',`O pacote individual de <b>${esc(p.nome)}</b> (3/3) será conferido e bloqueado. Isso não fecha o lote do evento.`,'Conferir e bloquear',()=>{p.conferido=true;reg(p,'PACOTE_CONFIRMADO');log(p.grupo,p.evt,'CONFERIU_PACOTE','PACOTE / '+p.id,'');toast('Pacote conferido e bloqueado');render()})},
  reopen(el){
   const p=person(el.dataset.id),n=+el.dataset.n,d=p.docs[n-1],auth=can('reabrir');
   dialog({title:(auth?'Reabrir ':'Solicitar correção do ')+d.nome,body:`<div class="notice warn small">A versão atual será <b>preservada</b> no histórico e uma nova versão será criada para nova assinatura. Nada é apagado.${auth?'':' Sua solicitação precisa ser aprovada por perfil autorizado.'}</div><label class="f">Motivo (obrigatório)<textarea id="rp-m" placeholder="Explique o motivo da correção"></textarea></label><div id="rp-e" class="notice bad small" hidden>Informe um motivo com pelo menos 10 caracteres.</div>`,
@@ -818,14 +889,14 @@ const ACT={
  },
  'aprovar-req'(el){const r=S.reqs.find(x=>x.id===el.dataset.id);const p=person(r.pid);r.status='APROVADA';reabrir(p,r.n,r.motivo,true);render()},
  excecao(el){const p=person(el.dataset.id);dialog({title:'Aprovar exceção',body:`<p><b>${esc(p.nome)}</b> poderá ficar fora do fechamento mesmo sem pacote conferido.</p><label class="f">Tipo e motivo<select id="ex-t"><option>Ausência justificada</option><option>Substituição</option><option>Documento dispensado (A VALIDAR)</option></select></label><label class="f">Detalhe (obrigatório)<textarea id="ex-m"></textarea></label><div id="ex-e" class="notice bad small" hidden>Descreva o motivo da exceção.</div>`,actions:[{label:'Cancelar',fn:closeDlg},{label:'Aprovar exceção',cls:'primary',fn:()=>{const m=$('#ex-m').value.trim();if(m.length<5){$('#ex-e').hidden=false;return}p.excecao=$('#ex-t').value+': '+m;log(p.grupo,p.evt,'APROVOU_EXCECAO',p.id,p.excecao);closeDlg();toast('Exceção aprovada e registrada');render()}}]})},
- 'demo-sign'(){const r=S.route;let n=0;aptos(r.evt,r.grupo).forEach(p=>{if(p.excecao)return;p.docs.forEach(d=>{if(d.status!=='BLOQUEADO'){const v=d.versoes[d.versoes.length-1];v.estado='ATIVA';v.em=nowSim().replace(' ','T');v.por='Atalho de demonstração';d.status='BLOQUEADO'}});if(!p.conferido){p.conferido=true;n++}});log(r.grupo,r.evt,'ATALHO_DEMO_CONCLUIR_PENDENCIAS','Todos os aptos','Somente protótipo');toast('Atalho de demonstração: '+n+' pacotes concluídos (não existe na solução real)');render()},
+ 'demo-sign'(){const r=S.route;let n=0;aptos(r.evt,r.grupo).forEach(p=>{if(p.excecao)return;p.docs.forEach(d=>{if(d.status!=='BLOQUEADO'){const v=d.versoes[d.versoes.length-1];v.estado='ATIVA';v.em=nowSim().replace(' ','T');v.por='Atalho de demonstração';d.status='BLOQUEADO'}});if(!p.conferido){p.conferido=true;reg(p,'PACOTE_CONFIRMADO','Atalho de demonstração');n++}});log(r.grupo,r.evt,'ATALHO_DEMO_CONCLUIR_PENDENCIAS','Todos os aptos','Somente protótipo');toast('Atalho de demonstração: '+n+' pacotes concluídos (não existe na solução real)');render()},
  jornada(){const k=gkey(S.route.evt,S.route.grupo);S.jornada[k]=1;log(S.route.grupo,S.route.evt,'MARCOU_JORNADA_APURADA','Evento','Simulação');render()},
  aprovar(){const k=gkey(S.route.evt,S.route.grupo);S.aprov[k]={por:PERFIS[S.perfil].nome,em:nowSim()};log(S.route.grupo,S.route.evt,'APROVOU_CONFERENCIA','Evento','');render()},
  fechar(){
   const r=S.route,e=evt(r.evt),g=r.grupo,k=gkey(e.id,g),s=stats(e.id,g);
   confirmDlg('Fechar e bloquear o lote?',`O lote de <b>${GR[g].nome}</b> do evento <b>${esc(e.nome)}</b> será bloqueado e preparado para entrega. O lote do outro grupo <b>não</b> é afetado.`,'Fechar e bloquear',()=>{
     const arr=S.lotes[k]=S.lotes[k]||[];const v=arr.length+1;if(arr.length)arr[arr.length-1].estado='SUBSTITUIDO';
-    arr.push({id:`LOTE-${e.id}-${GR[g].curto}-v${v}`,versao:v,grupo:g,em:nowSim().replace(' ','T'),por:PERFIS[S.perfil].nome,pessoas:s.aptos-s.excecoes,docs:(s.aptos-s.excecoes)*3,excecoes:s.excecoes,estado:'FECHADO',retificacao:false,ent:{banco:'AGUARDANDO',drive:'AGUARDANDO',contab:'AGUARDANDO'},entEm:{}});
+    arr.push({id:`LOTE-${e.id}-${GR[g].curto}-v${v}`,versao:v,grupo:g,em:nowSim().replace(' ','T'),por:PERFIS[S.perfil].nome,pessoas:s.aptos-s.excecoes,docs:(s.aptos-s.excecoes)*3,excecoes:s.excecoes,estado:'FECHADO',retificacao:false,ent:{banco:'AGUARDANDO',drive:'AGUARDANDO',contab:'AGUARDANDO',limpeza:'AGUARDANDO'},entEm:{}});
     S.jornada[k]=S.jornada[k];log(g,e.id,'FECHOU_LOTE','LOTE v'+v,'');toast('Lote v'+v+' fechado e bloqueado');render()});
  },
  enviar(el){envio(el.dataset.m)}
@@ -834,20 +905,20 @@ function reabrir(p,n,motivo,viaReq){
   const d=p.docs[n-1];d.status='EM_CORRECAO';const cur=d.versoes.find(x=>x.estado==='ATIVA');if(cur)cur.estado='SUBSTITUIDA';
   d.versoes.push({v:d.versoes.length+1,estado:'AGUARDANDO',em:null,por:null});p.conferido=false;
   const k=gkey(p.evt,p.grupo);delete S.aprov[k];const l=loteAtual(p.evt,p.grupo);if(l&&(l.estado==='FECHADO'||l.estado==='EXPORTADO'))l.retificacao=true;
-  log(p.grupo,p.evt,viaReq?'APROVOU_REABERTURA':'REABRIU_DOCUMENTO',`DOC-${n} / ${p.id}`,motivo+' (v'+(d.versoes.length-1)+' preservada)');
+  reg(p,'DOCUMENTO_REABERTO','Documento '+n);log(p.grupo,p.evt,viaReq?'APROVOU_REABERTURA':'REABRIU_DOCUMENTO',`DOC-${n} / ${p.id}`,motivo+' (v'+(d.versoes.length-1)+' preservada)');
   toast('Documento reaberto: v'+(d.versoes.length-1)+' preservada, nova versão criada'+(l?'. O lote já fechado exige retificação.':''));
 }
 function envio(modo){
   const r=S.route,l=loteAtual(r.evt,r.grupo);if(!l)return;
   S.fail=modo==='falha';
-  const ordem=['banco','drive','contab'];
+  const ordem=['banco','drive','contab','limpeza'];
   const passo=()=>{
     const prox=ordem.find(k=>l.ent[k]!=='ENTREGUE');if(!prox){render();return}
     l.ent[prox]='PROCESSANDO';render();
     setTimeout(()=>{
       if(S.offline||(S.fail&&prox==='drive')){l.ent[prox]='ERRO';l.erro=S.offline?'Sem conexão. O lote continua guardado; tente novamente.':'Falha simulada ao enviar ao Google Drive. O lote continua guardado; tente novamente.';S.fail=false;render();return}
       l.ent[prox]='ENTREGUE';l.entEm[prox]=nowSim().replace(' ','T');l.erro='';
-      if(prox==='contab'){l.estado='EXPORTADO';log(r.grupo,r.evt,'ENTREGA_SIMULADA_CONCLUIDA',l.id,'')}
+      if(prox==='limpeza'){l.estado='EXPORTADO';log(r.grupo,r.evt,'ENTREGA_SIMULADA_CONCLUIDA',l.id,'')}
       render();passo();
     },900);
   };
@@ -870,6 +941,7 @@ document.addEventListener('change',ev=>{
   const el=ev.target;if(!el.dataset)return;
   if(el.dataset.in==='perfil'){S.perfil=el.value;toast('Perfil: '+PERFIS[S.perfil].nome);const r=S.route;if(r.screen==='mod'&&!PERFIS[S.perfil].grupos.includes(r.grupo)){render();return}if(S.perfil==='lider'&&r.screen==='mod'&&r.tab==='areas'&&r.lider&&r.lider!=='L0801'){go({screen:'mod',evt:r.evt,grupo:r.grupo,tab:'areas'});return}render()}
   if(el.dataset.in==='showaudit'){S.showAudit=el.checked;render()}
+  if(el.dataset.in==='foto'&&el.files&&el.files[0]){const fr=new FileReader();fr.onload=()=>{DLG.foto=fr.result;const pv=$('#fm-prev');if(pv)pv.innerHTML=`<img src="${fr.result}" alt="Foto capturada">`};fr.readAsDataURL(el.files[0])}
 });
 document.addEventListener('keydown',ev=>{if(ev.key==='Escape'){if($('#dialog').innerHTML)closeDlg()}});
 render();
