@@ -1,0 +1,878 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="claude:viewport-fit-sides" content="cover">
+<title>MCD Eventos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<style>
+/* Conceito: painel azul-petróleo institucional + operação clara em cartões brancos; cada módulo tem cor própria (azul = Funcionários do Evento, roxo = Intermitentes). Cores e fonte PROVISÓRIAS, aproximadas da captura do Portal MCD Normas. */
+:root{
+  --primary:#1C7D9D; --primary-dark:#146C88; --accent:#F4C225; --accent-ink:#5c4500;
+  --bg:#F2F2F2; --surface:#FFFFFF; --surface-2:#F7F9FA; --text:#404950; --muted:#647681; --border:#D7E0E5;
+  --success:#2F8C67; --success-bg:#E4F3EC; --warning:#8F6508; --warning-bg:#FBF1D6; --danger:#BB4C49; --danger-bg:#F9E6E5;
+  --info-bg:#E2F1F6; --int:#7A4FA0; --int-bg:#EFE8F6; --shadow:0 10px 30px rgb(16 50 66 / 7%);
+  --panel:#1C7D9D; --panel-text:#fff; --ink-strong:#22313a;
+  --r-card:20px; --r-input:14px;
+  --font:'Inter',system-ui,-apple-system,'Segoe UI',Arial,sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#11191d; --surface:#1a252b; --surface-2:#202d34; --text:#d9e2e7; --muted:#93a6b0; --border:#31424b;
+    --success:#5ac49a; --success-bg:#17352a; --warning:#e8bf5a; --warning-bg:#3a2f12; --danger:#e58582; --danger-bg:#3d2020;
+    --info-bg:#173642; --int:#b58ddb; --int-bg:#2a2038; --shadow:0 10px 30px rgb(0 0 0 / 30%); --primary:#2a9bc0; --primary-dark:#1C7D9D; --ink-strong:#f1f6f8; --accent-ink:#F4C225;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#11191d; --surface:#1a252b; --surface-2:#202d34; --text:#d9e2e7; --muted:#93a6b0; --border:#31424b;
+  --success:#5ac49a; --success-bg:#17352a; --warning:#e8bf5a; --warning-bg:#3a2f12; --danger:#e58582; --danger-bg:#3d2020;
+  --info-bg:#173642; --int:#b58ddb; --int-bg:#2a2038; --shadow:0 10px 30px rgb(0 0 0 / 30%); --primary:#2a9bc0; --primary-dark:#1C7D9D; --ink-strong:#f1f6f8; --accent-ink:#F4C225;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font);font-size:15px;line-height:1.5;padding-left:max(0px,env(safe-area-inset-left,0px));padding-right:max(0px,env(safe-area-inset-right,0px))}
+button,input,select,textarea{font:inherit;color:inherit}
+h1,h2,h3,h4{color:var(--ink-strong);margin:0;line-height:1.2;text-wrap:balance}
+h1{font-size:28px;font-weight:600} h2{font-size:22px;font-weight:600} h3{font-size:17px;font-weight:600} h4{font-size:15px;font-weight:600}
+p{margin:0}
+.eyebrow{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--primary)}
+.muted{color:var(--muted)} .small{font-size:13px} .tiny{font-size:12px}
+.row{display:flex;gap:12px;align-items:center;flex-wrap:wrap} .between{justify-content:space-between} .grow{flex:1;min-width:0}
+.stack{display:flex;flex-direction:column;gap:16px}
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))} .g3{grid-template-columns:repeat(3,minmax(0,1fr))} .g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+@media (max-width:1100px){.g4{grid-template-columns:repeat(2,minmax(0,1fr))}.g3{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:700px){.g2,.g3,.g4{grid-template-columns:minmax(0,1fr)}}
+/* botões */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 18px;border-radius:12px;border:1px solid var(--border);background:var(--surface);cursor:pointer;font-weight:600;font-size:14px;color:var(--text);white-space:nowrap}
+.btn:hover{border-color:var(--primary)}
+.btn.primary{background:var(--primary);border-color:var(--primary);color:#fff}
+.btn.primary:hover{background:var(--primary-dark)}
+.btn.accent{background:var(--accent);border-color:var(--accent);color:#3d2f00}
+.btn.danger{background:var(--danger);border-color:var(--danger);color:#fff}
+.btn.int{background:var(--int);border-color:var(--int);color:#fff}
+.btn.ghost{background:transparent}
+.btn.sm{min-height:36px;padding:0 12px;font-size:13px}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+input[type=text],input[type=password],input[type=search],select,textarea{width:100%;min-height:46px;padding:10px 14px;border:1px solid var(--border);border-radius:var(--r-input);background:var(--surface);}
+textarea{min-height:90px;resize:vertical}
+input:focus,select:focus,textarea:focus{border-color:var(--primary);outline:2px solid color-mix(in srgb,var(--primary) 35%,transparent)}
+label.f{display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:600}
+/* cartões */
+.card{background:var(--surface);border-radius:var(--r-card);box-shadow:var(--shadow);border:1px solid var(--border);padding:20px}
+.card.flat{box-shadow:none}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:600;background:var(--surface-2);color:var(--muted);border:1px solid var(--border);white-space:nowrap}
+.chip.ok{background:var(--success-bg);color:var(--success);border-color:transparent}
+.chip.warn{background:var(--warning-bg);color:var(--warning);border-color:transparent}
+.chip.bad{background:var(--danger-bg);color:var(--danger);border-color:transparent}
+.chip.info{background:var(--info-bg);color:var(--primary);border-color:transparent}
+.chip.int{background:var(--int-bg);color:var(--int);border-color:transparent}
+.chip.fe{background:var(--info-bg);color:var(--primary);border-color:transparent}
+.dot{width:8px;height:8px;border-radius:50%;background:currentColor;display:inline-block}
+/* topo */
+.topbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--surface);border-bottom:1px solid var(--border);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.topbar .in{max-width:1320px;margin:0 auto;min-height:64px;display:flex;align-items:center;gap:16px}
+.brand{display:flex;align-items:center;gap:10px;cursor:pointer;background:none;border:0;padding:0}
+.brand b{font-size:18px;font-weight:700;color:var(--ink-strong)}
+.pill-offline{background:var(--danger-bg);color:var(--danger);padding:4px 12px;border-radius:999px;font-weight:700;font-size:12px}
+.page{max-width:1320px;margin:0 auto;padding:20px max(16px,env(safe-area-inset-left,0px)) 56px}
+.crumbs{display:flex;flex-wrap:wrap;gap:6px;font-size:13px;color:var(--muted);align-items:center;margin-bottom:14px}
+.crumbs button{background:none;border:0;padding:2px 4px;color:var(--primary);cursor:pointer;font-weight:600;border-radius:6px}
+.crumbs span.sep{opacity:.6}
+.crumbs .cur{font-weight:600;color:var(--text)}
+/* faixa do grupo */
+.groupbar{display:flex;align-items:center;gap:12px;padding:10px 16px;border-radius:14px;font-weight:700;font-size:13px;letter-spacing:.06em;text-transform:uppercase;margin-bottom:16px}
+.groupbar.fe{background:var(--info-bg);color:var(--primary);border-left:6px solid var(--primary)}
+.groupbar.int{background:var(--int-bg);color:var(--int);border-left:6px solid var(--int)}
+/* login */
+.login{min-height:100vh;display:grid;grid-template-columns:57fr 43fr}
+.login .left{background:var(--panel);color:#fff;padding:56px 7vw;position:relative;overflow:hidden;border-radius:0 40px 40px 0;display:flex;flex-direction:column;justify-content:center;gap:20px}
+.login .left::before,.login .left::after{content:"";position:absolute;border-radius:50%;background:rgba(255,255,255,.07)}
+.login .left::before{width:360px;height:360px;right:-120px;top:-120px}
+.login .left::after{width:520px;height:520px;left:34%;bottom:-300px}
+.login .left h1{color:#fff;font-size:clamp(30px,3.6vw,46px);font-weight:600}
+.login .left .eyebrow{color:var(--accent)}
+.login .left p{color:rgba(255,255,255,.85);max-width:520px}
+.login .right{display:flex;align-items:center;justify-content:center;padding:32px max(16px,env(safe-area-inset-left,0px))}
+.login .box{width:100%;max-width:440px;background:var(--surface);border-radius:30px;box-shadow:var(--shadow);padding:36px;display:flex;flex-direction:column;gap:16px;border:1px solid var(--border)}
+.benefit{display:flex;gap:12px;align-items:flex-start;position:relative;z-index:1}
+.benefit .ck{flex:none;width:34px;height:34px;border-radius:50%;background:var(--accent);color:#3d2f00;display:grid;place-items:center;font-weight:700}
+@media (max-width:900px){.login{grid-template-columns:1fr}.login .left{border-radius:0 0 32px 32px;padding:32px 24px}}
+/* calendário */
+.cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
+.cal .dow{font-size:12px;font-weight:700;color:var(--muted);text-align:center;padding:6px 0;text-transform:uppercase;letter-spacing:.08em}
+.cal .day{position:relative;min-height:72px;border-radius:14px;border:1px solid var(--border);background:var(--surface);padding:8px;text-align:left;cursor:pointer;display:flex;flex-direction:column;justify-content:space-between}
+.cal .day.off{background:var(--surface-2);opacity:.5;cursor:default}
+.cal .day.has{border-color:var(--primary);background:var(--info-bg)}
+.cal .day.arch{border-style:dashed;border-color:var(--muted);background:var(--surface-2)}
+.cal .day.today{outline:2px solid var(--accent)}
+.cal .day b{font-size:15px;color:var(--ink-strong)}
+.badge{display:inline-grid;place-items:center;min-width:24px;height:24px;border-radius:12px;background:var(--primary);color:#fff;font-size:12px;font-weight:700;padding:0 6px}
+.badge.arch{background:var(--muted)}
+/* eventos */
+.evcard{overflow:hidden;padding:0;cursor:pointer;display:flex;flex-direction:column;text-align:left;border:1px solid var(--border);border-radius:var(--r-card);background:var(--surface);box-shadow:var(--shadow)}
+.banner{height:130px;position:relative;display:flex;align-items:flex-end;padding:14px 18px;color:#fff;font-weight:700;letter-spacing:.12em;font-size:13px;overflow:hidden}
+.banner::before{content:"";position:absolute;width:260px;height:260px;border-radius:50%;background:rgba(255,255,255,.12);right:-70px;top:-110px}
+.banner.big{height:160px}
+.evhead{display:grid;grid-template-columns:auto 1fr;gap:0;overflow:hidden;padding:0}
+.module{border-radius:var(--r-card);padding:26px;display:flex;flex-direction:column;gap:14px;text-align:left;border:2px solid;background:var(--surface);cursor:pointer;box-shadow:var(--shadow)}
+.module.fe{border-color:var(--primary)} .module.int{border-color:var(--int)}
+.module .big{font-size:26px;font-weight:700;color:var(--ink-strong)}
+.module .icon{width:52px;height:52px;border-radius:16px;display:grid;place-items:center;font-size:26px}
+.module.fe .icon{background:var(--info-bg)} .module.int .icon{background:var(--int-bg)}
+.module[disabled]{opacity:.5;cursor:not-allowed}
+/* módulo */
+.shell{display:grid;grid-template-columns:250px minmax(0,1fr);gap:20px;align-items:start}
+.side{position:sticky;top:84px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);padding:10px;display:flex;flex-direction:column;gap:4px}
+.side button{display:flex;align-items:center;gap:10px;min-height:46px;border:0;background:none;border-radius:12px;padding:0 12px;cursor:pointer;font-weight:600;text-align:left;color:var(--text)}
+.side button:hover{background:var(--surface-2)}
+.side button.on{background:var(--info-bg);color:var(--primary);box-shadow:inset 4px 0 0 var(--accent)}
+.shell:has(.side.int) .eyebrow{color:var(--int)}
+.side.int button.on{background:var(--int-bg);color:var(--int)}
+.side hr{border:0;border-top:1px solid var(--border);margin:6px 0;width:100%}
+@media (max-width:1199px){
+  .shell{grid-template-columns:1fr}
+  .side{position:static;flex-direction:row;overflow-x:auto;padding:8px}
+  .side button{white-space:nowrap}.side hr{display:none}
+}
+.kpi{display:flex;flex-direction:column;gap:2px;padding:16px 18px;border-radius:16px;background:var(--surface);border:1px solid var(--border)}
+.kpi b{font-size:28px;color:var(--ink-strong);font-variant-numeric:tabular-nums;line-height:1.1}
+.kpi span{font-size:13px;color:var(--muted)}
+.areacard{text-align:left;border:1px solid var(--border);background:var(--surface);border-radius:18px;padding:18px;cursor:pointer;display:flex;flex-direction:column;gap:10px;box-shadow:var(--shadow)}
+.areacard:hover{border-color:var(--primary)}
+.areacard b.t{font-size:17px;color:var(--ink-strong);letter-spacing:.02em}
+.bar{height:8px;background:var(--surface-2);border-radius:99px;overflow:hidden;border:1px solid var(--border)}
+.bar i{display:block;height:100%;background:var(--success)}
+/* tabelas */
+.tw{overflow-x:auto;border:1px solid var(--border);border-radius:16px;background:var(--surface)}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{position:sticky;top:0;text-align:left;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);padding:12px 14px;background:var(--surface-2);border-bottom:1px solid var(--border);white-space:nowrap}
+td{white-space:nowrap;padding:12px 14px;border-bottom:1px solid var(--border);vertical-align:middle}
+tr:last-child td{border-bottom:0}
+tr.click{cursor:pointer} tr.click:hover td{background:var(--surface-2)}
+.mono{font-variant-numeric:tabular-nums;font-weight:600}
+.pp{display:inline-flex;gap:3px;vertical-align:middle;margin-right:6px}
+.pp i{width:16px;height:8px;border-radius:4px;background:var(--border)} .pp i.on{background:var(--success)}
+.filters{display:flex;gap:10px;flex-wrap:wrap;align-items:end}
+.filters label.f{min-width:150px;flex:1}
+.pager{display:flex;gap:10px;align-items:center;justify-content:flex-end;padding-top:10px;font-size:13px}
+.avatar{width:84px;height:84px;border-radius:50%;display:grid;place-items:center;font-size:28px;font-weight:700;color:#fff;flex:none}
+.notice{border-radius:14px;padding:12px 16px;font-size:14px;border:1px solid var(--border);background:var(--surface-2)}
+.notice.warn{background:var(--warning-bg);color:var(--warning);border-color:transparent}
+.notice.bad{background:var(--danger-bg);color:var(--danger);border-color:transparent}
+.notice.ok{background:var(--success-bg);color:var(--success);border-color:transparent}
+.notice.info{background:var(--info-bg);color:var(--primary);border-color:transparent}
+.empty{text-align:center;padding:36px 16px;color:var(--muted);display:flex;flex-direction:column;gap:10px;align-items:center}
+.check{display:grid;grid-template-columns:34px 1fr auto;gap:12px;align-items:center;padding:14px 0;border-bottom:1px solid var(--border)}
+.check:last-child{border-bottom:0}
+.ci{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:14px}
+.ci.ok{background:var(--success-bg);color:var(--success)} .ci.no{background:var(--danger-bg);color:var(--danger)} .ci.wait{background:var(--warning-bg);color:var(--warning)}
+.spin{width:14px;height:14px;border-radius:50%;border:2px solid var(--border);border-top-color:var(--primary);display:inline-block;animation:sp .8s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.spin{animation:none}}
+/* modais */
+.overlay{position:fixed;inset:0;background:rgba(20,32,38,.55);z-index:50;display:flex;align-items:center;justify-content:center;padding:16px}
+.dlg{background:var(--surface);border-radius:22px;max-width:560px;width:100%;max-height:92vh;overflow:auto;padding:24px;display:flex;flex-direction:column;gap:16px;box-shadow:0 20px 60px rgba(0,0,0,.35)}
+.dlg.wide{max-width:760px}
+.viewer{position:fixed;inset:0;z-index:40;background:var(--bg);display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0px)}
+.viewer .vh{display:flex;gap:12px;align-items:center;justify-content:space-between;padding:12px max(16px,env(safe-area-inset-left,0px));background:var(--surface);border-bottom:1px solid var(--border);flex-wrap:wrap}
+.viewer .vb{flex:1;display:grid;grid-template-columns:minmax(0,1fr) 380px;min-height:0}
+@media (max-width:1000px){.viewer .vb{grid-template-columns:1fr;grid-template-rows:minmax(0,1fr) auto}}
+.pdfwrap{overflow:auto;padding:20px;background:#8a98a0;min-height:0}
+.pdfpage{background:#fff;color:#222;width:calc(640px*var(--z,1));max-width:none;margin:0 auto;padding:calc(48px*var(--z,1));font-family:Georgia,'Times New Roman',serif;font-size:calc(13px*var(--z,1));line-height:1.6;box-shadow:0 6px 24px rgba(0,0,0,.3);min-height:calc(820px*var(--z,1));position:relative}
+.pdfpage h4{color:#222;font-size:calc(16px*var(--z,1));text-align:center;margin-bottom:calc(10px*var(--z,1))}
+.pdfpage .wm{position:absolute;inset:0;display:grid;place-items:center;font-size:calc(60px*var(--z,1));color:rgba(28,125,157,.07);font-weight:700;transform:rotate(-24deg);pointer-events:none;font-family:var(--font)}
+.sigpanel{background:var(--surface);border-left:1px solid var(--border);padding:20px;display:flex;flex-direction:column;gap:14px;overflow:auto}
+.sigpad{border:2px dashed var(--border);border-radius:16px;background:#fff;touch-action:none;width:100%;height:190px;display:block}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(24px + env(safe-area-inset-bottom,0px));background:var(--ink-strong);color:var(--bg);padding:12px 20px;border-radius:14px;z-index:90;font-weight:600;max-width:92vw;box-shadow:0 8px 30px rgba(0,0,0,.3)}
+.lock{display:inline-flex;align-items:center;gap:6px;color:var(--success);font-weight:700}
+.docs{display:grid;gap:14px;grid-template-columns:repeat(3,minmax(0,1fr))}
+@media (max-width:900px){.docs{grid-template-columns:1fr}}
+.docc{border:1px solid var(--border);border-radius:18px;padding:18px;display:flex;flex-direction:column;gap:12px;background:var(--surface)}
+.docc.locked{border-color:var(--success);background:linear-gradient(0deg,var(--success-bg),var(--surface) 70%)}
+.docc.corr{border-color:var(--warning)}
+details summary{cursor:pointer;font-weight:600;font-size:13px;color:var(--primary)}
+.tl{display:flex;flex-direction:column;gap:0}
+.tl .it{display:grid;grid-template-columns:150px 1fr;gap:14px;padding:12px 0;border-bottom:1px solid var(--border);font-size:14px}
+@media (max-width:700px){.tl .it{grid-template-columns:1fr}}
+.demo-tag{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:var(--accent);color:#3d2f00;padding:2px 8px;border-radius:6px}
+</style>
+</head>
+<body>
+<div id="topbar"></div>
+<div id="view"></div>
+<div id="modal"></div>
+<div id="dialog"></div>
+<div id="toast"></div>
+<script>
+'use strict';
+/* =========================================================
+   MCD Eventos — protótipo navegável (dados fictícios, sem backend)
+   Nenhum e-mail, Drive, banco ou assinatura com validade jurídica é real.
+   ========================================================= */
+const BASE='2026-10-23';
+const FE='FUNCIONARIO_EVENTO', INT='INTERMITENTE';
+const GR={[FE]:{nome:'Funcionários do Evento',cls:'fe',icon:'👷',curto:'FE'},[INT]:{nome:'Intermitentes',cls:'int',icon:'🕒',curto:'INT'}};
+const AREAS=['BAR','AMBULANTE','SERVIÇOS GERAIS','FINANCEIRO','ESCRITÓRIO','COZINHA','PRODUÇÃO','ESTOQUISTA','STAFF'];
+const EVENTS=[
+ {id:'EVT-001',nome:'Operação Maracanã — Evento A',data:'2026-10-25',inicio:'08:00',fim:'23:00',local:'Estádio do Maracanã, Rio de Janeiro/RJ',status:'Planejado',hue:196,sigla:'MARACANÃ'},
+ {id:'EVT-002',nome:'Evento B — Demonstração',data:'2026-10-25',inicio:'10:00',fim:'21:00',local:'Rio de Janeiro/RJ — local fictício',status:'Planejado',hue:28,sigla:'EVENTO B'},
+ {id:'EVT-003',nome:'Evento C — Convocação em andamento',data:'2026-10-30',inicio:'09:00',fim:'20:00',local:'Arena fictícia, Niterói/RJ',status:'Convocação aberta',hue:276,sigla:'EVENTO C'},
+ {id:'EVT-OLD',nome:'Evento Arquivado — Demonstração',data:'2026-08-15',inicio:'09:00',fim:'18:00',local:'Local fictício',status:'Arquivado',hue:210,sigla:'ARQUIVO'}
+];
+const PERFIS={
+ admin:{nome:'Administrador MCD',grupos:[FE,INT],convocar:1,assinar:1,reabrir:1,fechar:1,aprovar:1,exportar:1,excecao:1,pii:1},
+ coordFE:{nome:'Coordenador — Funcionários do Evento',grupos:[FE],convocar:1,assinar:1,reabrir:1,fechar:1,exportar:1,excecao:1,pii:1},
+ coordINT:{nome:'Coordenador — Intermitentes',grupos:[INT],convocar:1,assinar:1,reabrir:1,exportar:1,excecao:1,pii:1},
+ lider:{nome:'Líder 0801 — Carlos Henrique Pereira',grupos:[FE],assinar:1,solicitar:1,lider:'L0801',pii:1},
+ contab:{nome:'Contabilidade / DP',grupos:[FE,INT],aprovar:1,exportar:1}
+};
+/* ---------- gerador determinístico ---------- */
+function rng(seed){return function(){seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const R=rng(20261023);
+const FN=['Ana','Bruno','Camila','Diego','Elisa','Fábio','Gabriela','Heitor','Isabela','João','Karen','Lucas','Mariana','Nicolas','Olívia','Paulo','Quésia','Rafael','Sofia','Thiago','Úrsula','Vitor','Wanda','Yago','Zélia','Marcos','Letícia','Renan','Bianca','Caio'];
+const LN=['Almeida','Barbosa','Cardoso','Dias','Esteves','Ferraz','Gomes','Henriques','Ibrahim','Junqueira','Lopes','Moreira','Nogueira','Oliveira','Pacheco','Queiroz','Ramos','Siqueira','Teixeira','Uchoa','Vasconcelos','Xavier','Zanetti','Barros','Campos','Duarte','Farias','Guedes'];
+const LN2=['da Silva','de Souza','dos Santos','Pereira','Rodrigues','Carvalho','Ribeiro','Martins','Araújo','Monteiro'];
+const pick=a=>a[Math.floor(R()*a.length)];
+const nome=()=>pick(FN)+' '+pick(LN)+' '+pick(LN2);
+const LEADERS=[
+ ['L0801','0801','Carlos Henrique Pereira','BAR','EVT-001',FE],['L0804','0804','Roberta Ferreira Dias','BAR','EVT-001',FE],
+ ['L0802','0802','Paula Ribeiro Gomes','COZINHA','EVT-001',FE],['L0803','0803','Bruno Almeida Costa','SERVIÇOS GERAIS','EVT-001',FE],
+ ['L0805','0805','Sérgio Nascimento Lima','PRODUÇÃO','EVT-001',FE],['L0901','0901','Lívia Martins Oliveira','STAFF','EVT-001',INT],
+ ['L0810','0810','Renato Pires Mendes','BAR','EVT-002',FE]
+].map(([id,codigo,nome,area,evt,grupo])=>({id,codigo,nome,area,evt,grupo}));
+let lc=820;
+function addLeader(evt,grupo,area,code){const c=code||String(lc++).padStart(4,'0');LEADERS.push({id:'L'+c,codigo:c,nome:nome(),area,evt,grupo});}
+/* garante 2 lideranças por área no EVT-001/FE */
+AREAS.forEach(a=>{const n=LEADERS.filter(l=>l.evt==='EVT-001'&&l.grupo===FE&&l.area===a).length;for(let i=n;i<2;i++)addLeader('EVT-001',FE,a);});
+addLeader('EVT-001',INT,'BAR','0902');addLeader('EVT-001',INT,'AMBULANTE','0903');
+addLeader('EVT-002',FE,'COZINHA','0812');addLeader('EVT-002',INT,'STAFF','0904');
+addLeader('EVT-003',FE,'BAR','0830');addLeader('EVT-003',FE,'COZINHA','0831');
+const SIGNED_AT='2026-10-25T10:00';
+function mkDocs(done){return [1,2,3].map(n=>({n,nome:'Documento '+n,status:n<=done?'BLOQUEADO':'PENDENTE',versoes:[{v:1,estado:n<=done?'ATIVA':'AGUARDANDO',em:n<=done?SIGNED_AT:null,por:n<=done?'Operador de demonstração':null}]}));}
+const PEOPLE=[];let pid=100;
+function addPerson(o){const p=Object.assign({id:'P'+(pid++),conv:'CONFIRMADO',canal:'EMAIL',form:'CONCLUIDO',presenca:'NAO_REGISTRADA',excecao:null,conferido:false,funcao:'Equipe operacional',turno:'08:00–18:00'},o);p.docs=p.docs||mkDocs(0);PEOPLE.push(p);return p;}
+/* pessoas do arquivo de exemplo */
+[['P001','EVT-001',FE,'001245','Ana Carolina Souza','BAR','L0801','CONFIRMADO','CONCLUIDO',3,true],
+ ['P002','EVT-001',FE,'001246','Pedro Martins Lima','COZINHA','L0802','NAO_RESPONDEU','NAO_INICIADO',0],
+ ['P003','EVT-001',FE,'001247','Maria de Fátima Costa','SERVIÇOS GERAIS','L0803','NAO_CONFIRMADO','NAO_INICIADO',0],
+ ['P004','EVT-001',FE,'001248','João Augusto Alves','BAR','L0801','CONFIRMADO','CONCLUIDO',1],
+ ['P005','EVT-001',FE,'001249','Larissa Mendes Rocha','BAR','L0804','CONFIRMADO','CONCLUIDO',2],
+ ['P006','EVT-001',FE,'001250','Felipe dos Santos Braga','PRODUÇÃO','L0805','CONFIRMADO','PENDENTE',0],
+ ['P007','EVT-001',FE,'001251','Clara Pontes Melo','COZINHA','L0802','CONFIRMADO','CONCLUIDO',0],
+ ['P008','EVT-001',FE,'001252','Rafael Souza Matos','SERVIÇOS GERAIS','L0803','CONFIRMADO','CONCLUIDO',3,true],
+ ['PI01','EVT-001',INT,'002001','Patrícia de Oliveira Freitas','STAFF','L0901','CONFIRMADO','CONCLUIDO',0],
+ ['PI02','EVT-001',INT,'002002','Diego Augusto Carvalho','STAFF','L0901','NAO_RESPONDEU','NAO_INICIADO',0],
+ ['PI03','EVT-001',INT,'002003','Renata Cavalcante Silva','STAFF','L0901','NAO_CONFIRMADO','NAO_INICIADO',0],
+ ['P201','EVT-002',FE,'003001','Camila Monteiro Nunes','BAR','L0810','CONFIRMADO','CONCLUIDO',0]
+].forEach(([id,evt,grupo,codigo,nm,area,lider,conv,form,done,conf])=>{const p=addPerson({id,evt,grupo,codigo,nome:nm,area,lider,conv,form,docs:mkDocs(done),conferido:!!conf});p.fixed=1;});
+pid=300;let cod=5000;
+function gen(evt,grupo,perLeader,mix){
+  LEADERS.filter(l=>l.evt===evt&&l.grupo===grupo&&!PEOPLE.some(p=>p.fixed&&p.lider===l.id&&false)).forEach(l=>{
+    const n=perLeader+Math.floor(R()*3);
+    for(let i=0;i<n;i++){
+      const r=R();let conv,form;
+      if(r<.74){conv='CONFIRMADO';form='CONCLUIDO'}else if(r<.84){conv='CONFIRMADO';form=R()<.5?'PENDENTE':'EM_PREENCHIMENTO'}else if(r<.93){conv='NAO_RESPONDEU';form='NAO_INICIADO'}else{conv='NAO_CONFIRMADO';form='NAO_INICIADO'}
+      let done=0;if(conv==='CONFIRMADO'&&form==='CONCLUIDO'){const q=R();done=q<mix[0]?3:q<mix[1]?2:q<mix[2]?1:0}
+      addPerson({evt,grupo,codigo:String(cod++).padStart(6,'0'),nome:nome(),area:l.area,lider:l.id,conv,form,docs:mkDocs(done),conferido:done===3&&R()<.55});
+    }
+  });
+}
+gen('EVT-001',FE,7,[.42,.62,.78]);gen('EVT-001',INT,5,[.2,.4,.6]);gen('EVT-002',FE,4,[.5,.7,.85]);gen('EVT-002',INT,3,[.3,.5,.7]);
+/* participação separada: mesmo código em outro evento */
+addPerson({evt:'EVT-002',grupo:FE,codigo:'001245',nome:'Ana Carolina Souza',area:'COZINHA',lider:'L0812',conv:'NAO_RESPONDEU',form:'NAO_INICIADO'});
+/* cadastro mestre (convidáveis) */
+const MESTRE=[];for(let i=0;i<24;i++)MESTRE.push({codigo:String(7000+i).padStart(6,'0'),nome:nome()});
+MESTRE.push({codigo:'002001',nome:'Patrícia de Oliveira Freitas'});
+/* ---------- estado ---------- */
+const S={perfil:'admin',route:{screen:'login'},offline:false,mes:'2026-10',pg:{},filt:{},dismissed:[],lotes:{},jornada:{},aprov:{},reqs:[],audit:[],showAudit:false,reveal:{},seq:1,fail:false};
+const AUDIT_SEED=[
+ ['2026-10-25 10:02','Operador de demonstração','CONFIRMOU_ASSINATURA','DOC-1 / P001','—'],
+ ['2026-10-25 10:05','Operador de demonstração','CONFIRMOU_ASSINATURA','DOC-2 / P001','—'],
+ ['2026-10-25 10:09','Operador de demonstração','CONFERIU_PACOTE','PACOTE / P001','—'],
+ ['2026-10-25 11:40','Carlos Henrique Pereira (Líder)','SOLICITOU_REABERTURA','DOC-2 / P005','Assinatura ilegível'],
+ ['2026-10-25 11:52','Administrador de demonstração','APROVOU_REABERTURA','DOC-2 / P005','Assinatura ilegível; v1 preservada, v2 criada'],
+ ['2026-10-25 12:30','Coordenador de demonstração','APROVOU_EXCECAO','Participação P0xx','Ausência justificada'],
+ ['2026-10-26 09:15','Contabilidade de demonstração','APROVOU_CONFERENCIA','LOTE v1 / Funcionários do Evento','Conferência completa'],
+ ['2026-10-26 09:40','Administrador de demonstração','FECHOU_LOTE','LOTE v1 / Funcionários do Evento','—']
+];
+/* ---------- utilidades ---------- */
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const $=s=>document.querySelector(s);
+const evt=id=>EVENTS.find(e=>e.id===id);
+const leader=id=>LEADERS.find(l=>l.id===id);
+const person=id=>PEOPLE.find(p=>p.id===id);
+const can=k=>!!PERFIS[S.perfil][k];
+const dBR=d=>d.split('-').reverse().join('/');
+const MESES=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+const DOWS=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+const diffDias=(a,b)=>Math.round((Date.parse(a)-Date.parse(b))/864e5);
+const archived=e=>diffDias(BASE,e.data)>30;
+const nowSim=()=>{const d=new Date();return '2026-10-25 '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')};
+const fmtTs=t=>{if(!t)return '—';const [d,h]=t.replace('T',' ').split(' ');return dBR(d)+' '+h};
+const initials=n=>n.split(' ').filter(x=>x.length>2).slice(0,2).map(x=>x[0]).join('');
+const chip=(t,tone='')=>`<span class="chip ${tone}">${t}</span>`;
+const gkey=(e,g)=>e+'|'+g;
+function toast(msg){const el=$('#toast');el.innerHTML=`<div class="toast" role="status">${esc(msg)}</div>`;clearTimeout(toast.t);toast.t=setTimeout(()=>el.innerHTML='',3200)}
+function log(grupo,evtId,acao,entidade,motivo){S.audit.unshift({ts:nowSim().slice(0,16),user:PERFIS[S.perfil].nome,grupo,evt:evtId,acao,entidade,motivo:motivo||'—'})}
+/* ---------- regras de negócio ---------- */
+const apto=p=>p.conv==='CONFIRMADO'&&p.form==='CONCLUIDO';
+const done=p=>p.docs.filter(d=>d.status==='BLOQUEADO').length;
+const emCorr=p=>p.docs.filter(d=>d.status==='EM_CORRECAO').length;
+const pessoas=(e,g)=>PEOPLE.filter(p=>p.evt===e&&p.grupo===g);
+const aptos=(e,g)=>pessoas(e,g).filter(apto);
+function pacote(p){
+  const d=done(p);
+  if(p.conferido)return{label:'Conferido e bloqueado',tone:'ok',lock:1};
+  if(emCorr(p))return{label:'Em correção',tone:'warn'};
+  if(d===3)return{label:'3/3 — aguarda conferência',tone:'info'};
+  if(d>0)return{label:'Parcial '+d+'/3',tone:'warn'};
+  return{label:'Pendente 0/3',tone:''};
+}
+const convChip=s=>s==='CONFIRMADO'?chip('Confirmado','ok'):s==='NAO_RESPONDEU'?chip('Não respondeu','warn'):chip('Não confirmado','bad');
+const formChip=(p)=>p.conv!=='CONFIRMADO'?'<span class="muted">—</span>':p.form==='CONCLUIDO'?chip('Concluído','ok'):p.form==='EM_PREENCHIMENTO'?chip('Em preenchimento','warn'):chip('Pendente','warn');
+const pp=n=>`<span class="pp">${[0,1,2].map(i=>`<i class="${i<n?'on':''}"></i>`).join('')}</span><span class="mono">${n}/3</span>`;
+function stats(e,g){
+  const all=pessoas(e,g),a=all.filter(apto);
+  const conf=a.filter(p=>p.conferido).length,exc=a.filter(p=>p.excecao).length;
+  return{total:all.length,conf:all.filter(p=>p.conv==='CONFIRMADO').length,nr:all.filter(p=>p.conv==='NAO_RESPONDEU').length,nc:all.filter(p=>p.conv==='NAO_CONFIRMADO').length,
+    formPend:all.filter(p=>p.conv==='CONFIRMADO'&&p.form!=='CONCLUIDO').length,aptos:a.length,conferidos:conf,excecoes:exc,
+    pend:a.filter(p=>!p.conferido&&!p.excecao).length,corr:a.reduce((s,p)=>s+emCorr(p),0)};
+}
+const loteAtual=(e,g)=>{const l=S.lotes[gkey(e,g)]||[];return l[l.length-1]};
+/* ---------- navegação ---------- */
+function go(r){S.route=Object.assign({},r);S.pg={};S.filt={};render();window.scrollTo(0,0)}
+function crumbs(){
+  const r=S.route,c=[];const e=r.evt&&evt(r.evt);
+  c.push(['Início',{screen:'home'}]);
+  if(r.screen==='arquivo'){c.push(['Arquivo',null]);return c}
+  if(e){
+    c.push([dBR(e.data),{screen:'day',day:e.data}]);
+    c.push([e.nome,{screen:'event',evt:e.id}]);
+  }
+  if(r.grupo){
+    c.push([GR[r.grupo].nome,{screen:'mod',evt:r.evt,grupo:r.grupo,tab:r.grupo===FE?'resumo':'resumo'}]);
+    if(r.tab&&r.tab!=='resumo'&&TABS[r.tab])c.push([TABS[r.tab],r.area||r.lider||r.pid?{screen:'mod',evt:r.evt,grupo:r.grupo,tab:r.tab}:null]);
+    if(r.area)c.push([r.area,r.lider?{screen:'mod',evt:r.evt,grupo:r.grupo,tab:'areas',area:r.area}:null]);
+    if(r.lider){const l=leader(r.lider);c.push([l.codigo+' — '+l.nome,r.pid?{screen:'mod',evt:r.evt,grupo:r.grupo,tab:'areas',area:r.area,lider:r.lider}:null])}
+    if(r.pid){const p=person(r.pid);c.push([p.codigo+' — '+p.nome,null])}
+  }
+  if(r.screen==='day')c[c.length-1]=[dBR(r.day),null];
+  return c;
+}
+const TABS={resumo:'Resumo',convocados:'Convocados',areas:'Áreas/Alocação',documentos:'Documentos',folha:'Fechamento de Folha',relatorios:'Relatórios',auditoria:'Auditoria / Backlog'};
+function crumbsHtml(){
+  const c=crumbs(),last=c.length-1;
+  return `<nav class="crumbs" aria-label="Trilha de navegação">${c.map(([t,r],i)=>(i?'<span class="sep">›</span>':'')+(r&&i<last?`<button data-act="go" data-r='${esc(JSON.stringify(r))}'>${esc(t)}</button>`:`<span class="cur">${esc(t)}</span>`)).join('')}</nav>`;
+}
+/* ---------- logo (provisório) ---------- */
+const LOGO=(w=120,light=false)=>`<svg width="${w}" viewBox="0 0 170 62" role="img" aria-label="MCD contabilidade consultiva"><path d="M4 50V24l12-12 8 8 8-8 8 8v30h-9V28l-7 7-8-8-8 8v15z" fill="#F4C225"/><text x="58" y="42" font-family="Inter,Arial,sans-serif" font-weight="700" font-size="40" fill="${light?'#fff':'#1C7D9D'}">CD</text><text x="4" y="58" font-family="Inter,Arial,sans-serif" font-size="9.5" letter-spacing="1" fill="${light?'#d7e8ee':'#647681'}">contabilidade consultiva</text></svg>`;
+const MARK=`<svg width="64" height="64" viewBox="0 0 64 64" aria-hidden="true"><path d="M6 56V24l14-14 10 10 10-10 10 10 8-8v44h-10V32l-8 8-10-10-10 10-10-10-4 4v22z" fill="#F4C225"/></svg>`;
+/* ---------- topo ---------- */
+function renderTop(){
+  if(S.route.screen==='login'){$('#topbar').innerHTML='';return}
+  const pend=EVENTS.filter(e=>!archived(e)).length;
+  $('#topbar').innerHTML=`<header class="topbar"><div class="in">
+    <button class="brand" data-act="go" data-r='{"screen":"home"}' aria-label="Ir para o início">${LOGO(86)}<b>Eventos</b></button>
+    <span class="demo-tag">Protótipo · dados fictícios</span>
+    <div class="grow"></div>
+    ${S.offline?'<span class="pill-offline" role="status">● Sem conexão</span>':''}
+    <label class="row small" style="gap:6px"><span class="muted">Perfil</span>
+      <select id="perfil" data-in="perfil" style="min-height:38px;width:auto;max-width:230px">${Object.entries(PERFIS).map(([k,v])=>`<option value="${k}" ${k===S.perfil?'selected':''}>${esc(v.nome)}</option>`).join('')}</select></label>
+    <button class="btn sm ${S.offline?'danger':''}" data-act="offline" aria-pressed="${S.offline}">${S.offline?'Voltar online':'Simular sem conexão'}</button>
+    <button class="btn sm ghost" data-act="logout">Sair</button>
+  </div></header>`;
+}
+/* ---------- telas ---------- */
+function vLogin(){
+  return `<div class="login">
+   <section class="left">
+     <div style="position:relative;z-index:1">${MARK}</div>
+     <div class="eyebrow" style="position:relative;z-index:1">Plataforma de gestão de eventos</div>
+     <h1 style="position:relative;z-index:1">Operações organizadas.<br>Eventos com mais agilidade.</h1>
+     <p style="position:relative;z-index:1">Convocação, equipes, assinaturas e fechamento documental em um só lugar.</p>
+     <div class="benefit"><span class="ck">✓</span><div><b>Grupos independentes e seguros</b><div class="small" style="opacity:.8">Intermitentes e Funcionários do Evento nunca se misturam.</div></div></div>
+     <div class="small" style="position:relative;z-index:1;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-top:16px">MCD Contabilidade Consultiva</div>
+   </section>
+   <section class="right"><form class="box" id="loginform" novalidate>
+     ${LOGO(150)}
+     <div class="eyebrow">Acesso restrito</div>
+     <div><h1 style="font-size:30px">Portal MCD Eventos</h1><p class="muted" style="margin-top:6px">Entre com o usuário e a senha fornecidos pela MCD.</p></div>
+     <label class="f">Usuário ou e-mail<input type="text" id="lu" autocomplete="off" placeholder="seu.usuario"></label>
+     <label class="f">Senha<input type="password" id="lp" autocomplete="off" placeholder="••••••••"></label>
+     <div id="lerr" class="notice bad" hidden>Preencha usuário e senha para entrar na demonstração.</div>
+     <div class="row between small"><label class="row" style="gap:8px"><input type="checkbox"> Lembrar meu acesso</label><button type="button" class="btn sm ghost" data-act="recover" style="color:var(--primary)">Esqueci minha senha</button></div>
+     <button class="btn primary" style="min-height:50px" type="submit">Entrar no portal →</button>
+     <p class="tiny muted"><span class="demo-tag">Demonstração</span> Qualquer usuário e senha funcionam. Nenhuma credencial real é validada ou guardada.</p>
+   </form></section></div>`;
+}
+function vHome(){
+  const [y,m]=S.mes.split('-').map(Number);
+  const first=new Date(Date.UTC(y,m-1,1)).getUTCDay(),dim=new Date(Date.UTC(y,m,0)).getUTCDate();
+  let cells=DOWS.map(d=>`<div class="dow">${d}</div>`).join('');
+  for(let i=0;i<first;i++)cells+='<div></div>';
+  for(let d=1;d<=dim;d++){
+    const ds=`${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const ev=EVENTS.filter(e=>e.data===ds),ar=ev.length&&ev.every(archived);
+    cells+=`<button class="day ${ev.length?(ar?'arch':'has'):''} ${ds===BASE?'today':''}" ${ev.length?`data-act="go" data-r='${JSON.stringify({screen:'day',day:ds})}'`:'data-act="nodata" data-d="'+ds+'"'} aria-label="${d} de ${MESES[m-1]}${ev.length?', '+ev.length+' evento(s)':''}"><b>${d}</b>${ev.length?`<span class="badge ${ar?'arch':''}">${ev.length}</span>`:''}</button>`;
+  }
+  const dest=destaques().filter(x=>!S.dismissed.includes(x.id));
+  const arq=EVENTS.filter(archived).length;
+  return `<div class="page"><div class="row between" style="margin-bottom:16px"><div><div class="eyebrow">Início</div><h1>Calendário de eventos</h1></div>
+    <button class="btn" data-act="go" data-r='{"screen":"arquivo"}'>🗄️ Arquivo (${arq})</button></div>
+   <div class="card"><div class="row between" style="margin-bottom:12px">
+     <button class="btn sm" data-act="mes" data-d="-1" aria-label="Mês anterior">‹</button><h2>${MESES[m-1]} de ${y}</h2><button class="btn sm" data-act="mes" data-d="1" aria-label="Próximo mês">›</button></div>
+     <div class="cal">${cells}</div>
+     <p class="tiny muted" style="margin-top:12px">Data de hoje simulada: ${dBR(BASE)}. Números indicam quantos eventos acontecem no dia. Eventos com mais de 30 dias saem da operação e ficam no Arquivo (hipótese a validar).</p></div>
+   <section style="margin-top:24px"><div class="row between" style="margin-bottom:12px"><h2>Destaques</h2><span class="tiny muted">Avisos e notificações (exemplos; nenhuma notificação real)</span></div>
+   ${dest.length?`<div class="grid g3">${dest.map(d=>`<div class="card flat stack" style="gap:8px"><div class="row between">${chip(d.tag,d.tone)}<button class="btn sm ghost" data-act="dismiss" data-id="${d.id}" aria-label="Dispensar aviso">✕</button></div><h4>${esc(d.titulo)}</h4><p class="small muted">${esc(d.desc)}</p>${d.r?`<button class="btn sm" data-act="go" data-r='${esc(JSON.stringify(d.r))}'>${d.cta}</button>`:''}</div>`).join('')}</div>`
+   :`<div class="card empty"><div style="font-size:32px">🔔</div><b>Nenhum destaque no momento</b><span class="small">Quando houver avisos, eles aparecem aqui.</span><button class="btn sm" data-act="restore">Restaurar exemplos</button></div>`}
+   </section></div>`;
+}
+function destaques(){
+  const out=[];
+  [['EVT-001',FE],['EVT-001',INT],['EVT-002',FE]].forEach(([e,g])=>{
+    const s=stats(e,g),ev=evt(e);
+    out.push({id:'nr-'+e+g,tag:GR[g].nome,tone:g===FE?'fe':'int',titulo:s.nr+' convites sem resposta',desc:ev.nome+' · '+dBR(ev.data),r:{screen:'mod',evt:e,grupo:g,tab:'convocados'},cta:'Abrir convocados'});
+  });
+  const s=stats('EVT-001',FE);
+  out.push({id:'docs',tag:'Funcionários do Evento',tone:'fe',titulo:s.pend+' pacotes aguardando conferência ou assinatura',desc:'Operação Maracanã — acompanhe por área e liderança.',r:{screen:'mod',evt:'EVT-001',grupo:FE,tab:'documentos'},cta:'Ver pendências'});
+  out.push({id:'old',tag:'Arquivo',tone:'',titulo:'1 evento arquivado',desc:'Eventos com mais de 30 dias saem da operação. Nenhum documento é excluído.',r:{screen:'arquivo'},cta:'Abrir Arquivo'});
+  return out;
+}
+function evCard(e){
+  const ar=archived(e);
+  return `<button class="evcard" data-act="${ar?'go':'go'}" data-r='${JSON.stringify(ar?{screen:'arquivo'}:{screen:'event',evt:e.id})}'>
+   <div class="banner" style="background:linear-gradient(135deg,hsl(${e.hue} 55% 32%),hsl(${e.hue} 60% 48%))">${esc(e.sigla)}</div>
+   <div class="stack" style="padding:16px 18px;gap:8px"><div class="row between">${chip(e.status,ar?'':e.status==='Planejado'?'info':'warn')}<span class="small muted">${e.inicio}–${e.fim}</span></div>
+   <h3>${esc(e.nome)}</h3><p class="small muted">📍 ${esc(e.local)}</p><span style="color:var(--primary);font-weight:600" class="small">${ar?'Consultar no Arquivo →':'Abrir evento →'}</span></div></button>`;
+}
+function vDay(){
+  const evs=EVENTS.filter(e=>e.data===S.route.day);
+  return `<div class="page">${crumbsHtml()}<h1>Eventos de ${dBR(S.route.day)}</h1>
+   <p class="muted" style="margin:6px 0 18px">${evs.length} evento(s) nesta data. Escolha um — cada evento tem seus próprios grupos e lotes.</p>
+   <div class="grid g3">${evs.map(evCard).join('')}</div></div>`;
+}
+function evHeader(e){
+  return `<div class="card evhead" style="margin-bottom:18px"><div class="banner big" style="background:linear-gradient(135deg,hsl(${e.hue} 55% 32%),hsl(${e.hue} 60% 48%));min-width:220px;align-items:center;justify-content:center;flex-direction:column;gap:10px">${LOGO(110,true)}<span>${esc(e.sigla)}</span></div>
+   <div class="stack" style="padding:22px;gap:8px;justify-content:center"><div class="row">${chip(e.status,'info')}<span class="tiny muted">Banner provisório; logo oficial a receber</span></div><h1>${esc(e.nome)}</h1>
+   <div class="row small muted" style="gap:20px"><span>📍 ${esc(e.local)}</span><span>📅 ${dBR(e.data)}</span><span>🕗 ${e.inicio}–${e.fim}</span></div></div></div>`;
+}
+function vEvent(){
+  const e=evt(S.route.evt);
+  const mod=g=>{const s=stats(e.id,g),ok=PERFIS[S.perfil].grupos.includes(g);
+    return `<button class="module ${GR[g].cls}" data-act="enter" data-g="${g}" ${ok?'':'aria-disabled="true"'}>
+     <div class="row between"><span class="icon">${GR[g].icon}</span>${ok?chip('Módulo independente',GR[g].cls):chip('Sem acesso para seu perfil','bad')}</div>
+     <div><div class="eyebrow" style="color:inherit">${g===FE?'Grupo 2':'Grupo 1'}</div><div class="big">${GR[g].nome}</div><p class="muted small" style="margin-top:4px">${g===FE?'Áreas, lideranças, documentos e fechamento de folha':'Convocados, equipes e documentação específica deste grupo'}</p></div>
+     <div class="grid g3" style="gap:8px"><div class="kpi"><b>${s.total}</b><span>Convocados</span></div><div class="kpi"><b>${s.conf}</b><span>Confirmados</span></div><div class="kpi"><b>${s.aptos}</b><span>Aptos</span></div></div>
+     <span class="btn ${g===FE?'primary':'int'}" style="align-self:flex-start">Abrir ${GR[g].nome} →</span></button>`};
+  return `<div class="page">${crumbsHtml()}${evHeader(e)}
+   <h2 style="margin-bottom:6px">Escolha o módulo</h2><p class="muted" style="margin-bottom:16px">Os dois módulos são independentes: listas, status, documentos, lotes e relatórios nunca são somados. Os totais acima são de cada grupo, separadamente.</p>
+   <div class="grid g2">${mod(INT)}${mod(FE)}</div>
+   <p class="tiny muted" style="margin-top:16px">Valores fictícios e apenas demonstrativos. Referência de capacidade da solução real: 3.000 pessoas e 9.000 documentos por evento.</p></div>`;
+}
+function sideNav(g,tab){
+  const items=g===FE?[['resumo','🏠'],['convocados','📋'],['areas','🧭'],['documentos','📄'],['folha','🧾'],['relatorios','📊'],['auditoria','🕘']]
+                    :[['resumo','🏠'],['convocados','📋'],['areas','🧭'],['documentos','📄']];
+  const lab=t=>g===INT&&t==='areas'?'Equipes':TABS[t];
+  return `<nav class="side ${GR[g].cls}" aria-label="Menu do módulo">${items.map(([t,i],ix)=>(g===FE&&t==='auditoria'?'<hr>':'')+`<button class="${tab===t?'on':''}" data-act="tab" data-t="${t}"><span>${i}</span>${lab(t)}${t==='auditoria'?'<span class="chip" style="margin-left:auto">planejado</span>':''}</button>`).join('')}</nav>`;
+}
+function vDenied(){
+  return `<div class="page">${crumbsHtml()}<div class="card empty" style="max-width:560px;margin:40px auto"><div style="font-size:40px">🔒</div><h2>Acesso negado</h2>
+   <p>Seu perfil (<b>${esc(PERFIS[S.perfil].nome)}</b>) não tem acesso ao módulo <b>${GR[S.route.grupo].nome}</b>. Nenhum dado deste grupo é exibido.</p>
+   <button class="btn primary" data-act="go" data-r='${JSON.stringify({screen:'event',evt:S.route.evt})}'>Voltar ao evento</button></div></div>`;
+}
+function vMod(){
+  const r=S.route,e=evt(r.evt),g=r.grupo;
+  if(!PERFIS[S.perfil].grupos.includes(g))return vDenied();
+  const tab=r.tab||'resumo';
+  let body='';
+  if(tab==='resumo')body=tResumo(e,g);
+  else if(tab==='convocados')body=r.pid?tFicha(e,g):tConvocados(e,g);
+  else if(tab==='areas')body=r.pid?tFicha(e,g):r.lider?tPessoas(e,g):r.area?tLiderancas(e,g):tAreas(e,g);
+  else if(tab==='documentos')body=r.pid?tFicha(e,g):tDocumentos(e,g);
+  else if(tab==='folha')body=g===FE?tFolha(e,g):'';
+  else if(tab==='relatorios')body=tRelatorios(e,g);
+  else if(tab==='auditoria')body=tAuditoria(e,g);
+  return `<div class="page">${crumbsHtml()}
+   <div class="groupbar ${GR[g].cls}"><span>${GR[g].icon}</span> ${GR[g].nome} <span class="grow"></span><span style="font-weight:500;text-transform:none;letter-spacing:0">${esc(e.nome)} · ${dBR(e.data)}</span></div>
+   <div class="shell">${sideNav(g,tab)}<main class="stack" style="min-width:0">${body}</main></div></div>`;
+}
+const kpi=(n,l)=>`<div class="kpi"><b>${n}</b><span>${l}</span></div>`;
+function tResumo(e,g){
+  const s=stats(e.id,g),fe=g===FE;
+  const sc=(t,tx,tab,ic)=>`<button class="areacard" data-act="tab" data-t="${tab}"><span style="font-size:26px">${ic}</span><b class="t">${t}</b><span class="small muted">${tx}</span></button>`;
+  return `<div><div class="eyebrow">${GR[g].nome}</div><h1>Resumo do módulo</h1></div>
+   <div class="grid g4">${kpi(s.total,'Convocados')}${kpi(s.conf,'Confirmados')}${kpi(s.nr,'Não responderam')}${kpi(s.nc,'Não confirmados')}</div>
+   <div class="grid g4">${kpi(s.formPend,'Formulários pendentes')}${kpi(s.aptos,'Aptos na operação')}${kpi(s.conferidos+'/'+s.aptos,'Pacotes conferidos')}${kpi(s.pend,'Pendentes de conclusão')}</div>
+   <div class="grid g3">${sc('Convocados','Todos os convidados, inclusive recusados e sem resposta.','convocados','📋')}${sc(g===FE?'Áreas/Alocação':'Equipes','Área → liderança → funcionários → ficha.','areas','🧭')}${sc('Documentos','Pendências e pacotes de 3 documentos.','documentos','📄')}
+   ${fe?sc('Fechamento de Folha','Checklist, lote bloqueado e entrega simulada.','folha','🧾')+sc('Relatórios','Convocados, documentos e alocação.','relatorios','📊')+sc('Auditoria / Backlog','Planejado para fase futura.','auditoria','🕘'):''}</div>
+   ${fe?'':`<div class="notice int"><b>Fechamento de folha dos Intermitentes:</b> regra a definir com o DP (A VALIDAR). Este módulo <b>não herda</b> o fluxo de folha de Funcionários do Evento e tem lote e exportação próprios.</div>`}
+   <p class="tiny muted">Amostra de demonstração com ${s.total} pessoas neste grupo. Na solução real o cenário de referência é de 3.000 pessoas por evento, com tabelas paginadas e busca por código.</p>`;
+}
+/* --- Convocados --- */
+function filtrar(list,key,fields){
+  const f=S.filt[key]||{};
+  return list.filter(p=>(!f.q||(p.codigo+' '+p.nome).toLowerCase().includes(f.q.toLowerCase()))&&fields.every(([k,fn])=>!f[k]||fn(p,f[k])));
+}
+function paginar(list,key,size=10){
+  const pages=Math.max(1,Math.ceil(list.length/size));let pg=Math.min(S.pg[key]||0,pages-1);S.pg[key]=pg;
+  return{items:list.slice(pg*size,pg*size+size),pg,pages,total:list.length,key};
+}
+const pager=o=>`<div class="pager"><span class="muted">${o.total} registro(s) · página ${o.pg+1} de ${o.pages}</span><button class="btn sm" data-act="page" data-k="${o.key}" data-d="-1" ${o.pg===0?'disabled':''}>‹ Anterior</button><button class="btn sm" data-act="page" data-k="${o.key}" data-d="1" ${o.pg>=o.pages-1?'disabled':''}>Próxima ›</button></div>`;
+const fsel=(key,k,label,opts)=>`<label class="f">${label}<select data-in="filt" data-key="${key}" data-k="${k}"><option value="">Todos</option>${opts.map(([v,t])=>`<option value="${esc(v)}" ${(S.filt[key]||{})[k]===v?'selected':''}>${esc(t)}</option>`).join('')}</select></label>`;
+const fq=(key,ph)=>`<label class="f">Buscar<input type="search" id="q-${key}" data-in="filt" data-key="${key}" data-k="q" placeholder="${ph}" value="${esc((S.filt[key]||{}).q||'')}"></label>`;
+function tConvocados(e,g){
+  const s=stats(e.id,g),key='conv-'+e.id+g;
+  const ls=LEADERS.filter(l=>l.evt===e.id&&l.grupo===g);
+  let list=pessoas(e.id,g);
+  list=filtrar(list,key,[['conv',(p,v)=>p.conv===v],['area',(p,v)=>p.area===v],['lider',(p,v)=>p.lider===v],['form',(p,v)=>v==='CONCLUIDO'?p.form==='CONCLUIDO':p.conv==='CONFIRMADO'&&p.form!=='CONCLUIDO']]);
+  const pg=paginar(list,key);
+  return `<div class="row between"><div><div class="eyebrow">${GR[g].nome}</div><h1>Convocados</h1></div>
+     <button class="btn primary" data-act="invite" ${can('convocar')?'':'disabled title="Seu perfil não pode convocar"'}>＋ Convidar</button></div>
+   <div class="grid g4">${kpi(s.total,'Total de convidados')}${kpi(s.conf,'Confirmados')}${kpi(s.nr,'Não responderam')}${kpi(s.nc,'Não confirmados')}</div>
+   <div class="grid g4">${kpi(s.formPend,'Formulários pendentes')}${kpi(s.aptos,'Aptos (confirmaram e concluíram o formulário)')}</div>
+   <div class="notice info small">Todos os convidados permanecem nesta lista. Quem confirma e conclui o formulário também passa a aparecer na lista operacional (Áreas/Alocação). Recusados e sem resposta <b>não</b> entram na operação.</div>
+   <div class="filters">${fq(key,'Código ou nome')}${fsel(key,'conv','Resposta',[['CONFIRMADO','Confirmado'],['NAO_RESPONDEU','Não respondeu'],['NAO_CONFIRMADO','Não confirmado']])}${fsel(key,'form','Formulário',[['CONCLUIDO','Concluído'],['PEND','Pendente']])}${fsel(key,'area','Área',AREAS.map(a=>[a,a]))}${fsel(key,'lider','Liderança',ls.map(l=>[l.id,l.codigo+' — '+l.nome]))}</div>
+   ${pg.total?`<div class="tw"><table><thead><tr><th>Código</th><th>Nome completo</th><th>Área prevista</th><th>Liderança</th><th>Resposta</th><th>Formulário</th><th>Operação</th><th></th></tr></thead><tbody>
+   ${pg.items.map(p=>{const l=leader(p.lider);return `<tr class="click" data-act="pessoa" data-id="${p.id}"><td class="mono">${p.codigo}</td><td><b>${esc(p.nome)}</b></td><td>${p.area}</td><td class="small">${l?l.codigo+' — '+esc(l.nome):'—'}</td><td>${convChip(p.conv)}</td><td>${formChip(p)}</td><td>${apto(p)?chip('Apto','ok'):'<span class="small muted">Fora da lista operacional</span>'}</td>
+   <td style="text-align:right" data-stop="1">${can('convocar')&&!apto(p)?`<button class="btn sm" data-act="portal" data-id="${p.id}">${p.conv==='CONFIRMADO'?'Preencher formulário':'Simular resposta'}</button>`:''}</td></tr>`}).join('')}</tbody></table></div>${pager(pg)}`
+   :`<div class="card empty"><div style="font-size:36px">📭</div><b>${list.length||!s.total?(s.total?'Nenhum convocado com esses filtros':'Nenhum convocado neste grupo ainda'):'Nenhum resultado'}</b><span class="small">${s.total?'Ajuste os filtros para ver mais pessoas.':'Use “Convidar” para escolher pessoas do cadastro mestre. O envio é simulado.'}</span></div>`}`;
+}
+/* --- Áreas / lideranças / pessoas --- */
+function tAreas(e,g){
+  const lid=PERFIS[S.perfil].lider;
+  return `<div><div class="eyebrow">${GR[g].nome}</div><h1>${g===FE?'Áreas / Alocação':'Equipes'}</h1><p class="muted">Escolha uma área para ver as lideranças. Contagens consideram apenas pessoas aptas deste grupo neste evento.</p></div>
+  ${lid?`<div class="notice info small">Perfil Líder: você enxerga somente a sua liderança (0801).</div>`:''}
+  <div class="grid g3">${AREAS.map(a=>{
+    const ls=LEADERS.filter(l=>l.evt===e.id&&l.grupo===g&&l.area===a&&(!lid||l.id===lid));
+    const ps=aptos(e.id,g).filter(p=>p.area===a&&ls.some(l=>l.id===p.lider)),c=ps.filter(p=>p.conferido).length;
+    return `<button class="areacard" data-act="area" data-a="${a}"><div class="row between"><b class="t">${a}</b>${chip(ls.length+' lideranças','')}</div>
+     <div class="row small muted" style="gap:14px"><span><b style="color:var(--ink-strong)">${ps.length}</b> pessoas aptas</span><span><b style="color:var(--ink-strong)">${c}</b> pacotes conferidos</span></div>
+     <div class="bar" aria-hidden="true"><i style="width:${ps.length?Math.round(c/ps.length*100):0}%"></i></div></button>`}).join('')}</div>`;
+}
+function tLiderancas(e,g){
+  const a=S.route.area,lid=PERFIS[S.perfil].lider;
+  const ls=LEADERS.filter(l=>l.evt===e.id&&l.grupo===g&&l.area===a&&(!lid||l.id===lid));
+  return `<div><div class="eyebrow">${GR[g].nome} · ${a}</div><h1>Lideranças de ${a}</h1></div>
+  ${ls.length?`<div class="tw"><table><thead><tr><th>Código</th><th>Nome completo</th><th>Aptos</th><th>Pacotes conferidos</th><th>Pendências</th><th></th></tr></thead><tbody>
+  ${ls.map(l=>{const ps=aptos(e.id,g).filter(p=>p.lider===l.id),c=ps.filter(p=>p.conferido).length,pe=ps.filter(p=>!p.conferido&&!p.excecao).length;
+   return `<tr class="click" data-act="lider" data-id="${l.id}"><td class="mono">${l.codigo}</td><td><b>${esc(l.nome)}</b></td><td>${ps.length}</td><td>${c}/${ps.length}</td><td>${pe?chip(pe+' pendentes','warn'):chip('Sem pendências','ok')}</td><td style="text-align:right"><span style="color:var(--primary);font-weight:600">Abrir equipe →</span></td></tr>`}).join('')}</tbody></table></div>`
+  :`<div class="card empty"><b>Nenhuma liderança cadastrada nesta área</b><span class="small">Cadastre uma liderança para alocar pessoas.</span></div>`}`;
+}
+function tPessoas(e,g){
+  const l=leader(S.route.lider),key='pes-'+l.id;
+  let list=aptos(e.id,g).filter(p=>p.lider===l.id);
+  list=filtrar(list,key,[['pk',(p,v)=>v==='PEND'?!p.conferido:v==='CONF'?p.conferido:done(p)===+v]]);
+  const pg=paginar(list,key);
+  const outros=pessoas(e.id,g).filter(p=>p.lider===l.id&&!apto(p)).length;
+  return `<div><div class="eyebrow">${GR[g].nome} · ${l.area}</div><h1>Equipe de ${esc(l.nome)} <span class="muted" style="font-weight:500">· ${l.codigo}</span></h1><p class="muted">Somente pessoas aptas desta liderança neste evento (${dBR(e.data)}).</p></div>
+  <div class="filters">${fq(key,'Código ou nome')}${fsel(key,'pk','Pacote',[['PEND','Não conferido'],['CONF','Conferido'],['0','0/3'],['1','1/3'],['2','2/3'],['3','3/3']])}</div>
+  ${pg.total?`<div class="tw"><table><thead><tr><th>Código</th><th>Nome completo</th><th>Convite</th><th>Formulário</th><th>Presença</th><th>Documentos</th><th>Pacote</th><th></th></tr></thead><tbody>
+  ${pg.items.map(p=>{const k=pacote(p);return `<tr class="click" data-act="pessoa" data-id="${p.id}"><td class="mono">${p.codigo}</td><td><b>${esc(p.nome)}</b></td><td>${convChip(p.conv)}</td><td>${formChip(p)}</td><td class="small muted">Não registrada</td><td>${pp(done(p))}</td><td>${chip((k.lock?'🔒 ':'')+k.label,k.tone)}${p.excecao?' '+chip('Exceção','warn'):''}</td><td style="text-align:right"><button class="btn sm">Abrir ficha</button></td></tr>`}).join('')}</tbody></table></div>${pager(pg)}`
+  :`<div class="card empty"><b>Nenhuma pessoa apta nesta liderança</b><span class="small">Convidados que ainda não confirmaram ou concluíram o formulário não aparecem aqui.</span></div>`}
+  ${outros?`<p class="tiny muted">${outros} convidado(s) desta liderança ainda não estão aptos e seguem apenas em Convocados.</p>`:''}`;
+}
+/* --- Ficha --- */
+function tFicha(e,g){
+  const p=person(S.route.pid),l=leader(p.lider),k=pacote(p),rev=S.reveal[p.id]&&can('pii');
+  const reqs=S.reqs.filter(r=>r.pid===p.id&&r.status==='PENDENTE');
+  const lock=k.lock;
+  return `<div class="card"><div class="row" style="gap:20px;align-items:flex-start">
+   <div class="avatar" style="background:linear-gradient(135deg,hsl(${(+p.codigo*37)%360} 45% 40%),hsl(${(+p.codigo*37+40)%360} 50% 55%))" aria-label="Foto fictícia">${initials(p.nome)}</div>
+   <div class="grow stack" style="gap:6px"><div class="row">${chip(GR[g].nome,GR[g].cls)}${convChip(p.conv)}${formChip(p)}${apto(p)?chip('Apto','ok'):''}</div>
+   <h1>${esc(p.nome)}</h1><div class="small muted">Código <b class="mono" style="color:var(--text)">${p.codigo}</b> · Foto fictícia (avatar)</div>
+   <div class="grid g3 small" style="margin-top:6px"><div><span class="muted">Grupo</span><br><b>${GR[g].nome}</b></div><div><span class="muted">Área</span><br><b>${p.area}</b></div><div><span class="muted">Liderança</span><br><b>${l?l.codigo+' — '+esc(l.nome):'—'}</b></div><div><span class="muted">Função</span><br><b>${p.funcao}</b></div><div><span class="muted">Turno</span><br><b>${p.turno}</b></div><div><span class="muted">Presença</span><br><b>Não registrada</b></div></div></div></div>
+   <details style="margin-top:14px" ${rev?'open':''}><summary>Dados de contato e endereço (acesso restrito)</summary><div class="stack" style="margin-top:10px;gap:8px">
+   ${can('pii')?(rev?`<div class="grid g3 small"><div><span class="muted">Telefone</span><br><b>(21) 90000-0000</b></div><div><span class="muted">E-mail</span><br><b>${p.codigo}@exemplo.invalid</b></div><div><span class="muted">Endereço</span><br><b>Rua de Demonstração, s/n — Rio de Janeiro/RJ</b></div></div><span class="tiny muted">Dados fictícios. Na solução real, cada visualização será registrada na auditoria.</span>`:`<button class="btn sm" data-act="reveal" data-id="${p.id}" style="align-self:flex-start">Mostrar dados restritos</button>`):`<div class="notice small">Seu perfil não tem acesso a dados pessoais. Telefone, e-mail e endereço ficam ocultos.</div>`}</div></details></div>
+  ${!apto(p)?`<div class="notice warn">Esta pessoa ainda <b>não está apta</b> para a operação (precisa confirmar o convite e concluir o formulário). Os documentos só ficam disponíveis para pessoas aptas.</div>`:''}
+  <div class="row between"><h2>Pacote de 3 documentos</h2><div class="row">${pp(done(p))}${chip((lock?'🔒 ':'')+k.label,k.tone)}</div></div>
+  <div class="notice small">Nomes e modelos dos documentos são provisórios (<b>A VALIDAR</b> com DP/jurídico). A assinatura desenhada é uma <b>demonstração</b>, sem validade jurídica.</div>
+  <div class="docs">${p.docs.map(d=>{const v=d.versoes[d.versoes.length-1],ativa=d.versoes.find(x=>x.estado==='ATIVA');
+    return `<div class="docc ${d.status==='BLOQUEADO'?'locked':d.status==='EM_CORRECAO'?'corr':''}"><div class="row between"><h3>${d.nome}</h3>${d.status==='BLOQUEADO'?chip('🔒 Assinado e bloqueado','ok'):d.status==='EM_CORRECAO'?chip('Em correção','warn'):chip('Pendente','')}</div>
+     <div class="small muted">Versão ${d.status==='BLOQUEADO'&&ativa?ativa.v:v.v}${ativa?` · assinado em ${fmtTs(ativa.em)}<br>Operador: ${esc(ativa.por)}`:''}</div>
+     ${d.status==='BLOQUEADO'?`<div class="lock small">Edição bloqueada</div>`:''}
+     <div class="row" style="gap:8px">${d.status==='BLOQUEADO'?`<button class="btn sm" data-act="viewer" data-id="${p.id}" data-n="${d.n}">Ver PDF</button>${can('reabrir')||can('solicitar')?`<button class="btn sm" data-act="reopen" data-id="${p.id}" data-n="${d.n}">${can('reabrir')?'Reabrir (autorizado)':'Solicitar correção'}</button>`:''}`
+       :`<button class="btn sm primary" data-act="viewer" data-id="${p.id}" data-n="${d.n}" ${apto(p)&&can('assinar')?'':'disabled'}>Abrir e assinar</button>`}</div>
+     ${d.versoes.length>1?`<details><summary>Histórico de versões (${d.versoes.length})</summary><div class="small stack" style="gap:4px;margin-top:6px">${d.versoes.slice().reverse().map(x=>`<div>v${x.v} · ${x.estado==='SUBSTITUIDA'?'Substituída (preservada)':x.estado==='ATIVA'?'Ativa':'Aguardando assinatura'}${x.em?' · '+fmtTs(x.em):''}</div>`).join('')}</div></details>`:''}</div>`}).join('')}</div>
+  ${reqs.length?`<div class="notice warn"><b>Solicitações de reabertura aguardando autorização:</b> ${reqs.map(r=>`Documento ${r.n} — “${esc(r.motivo)}”`).join('; ')}. ${can('reabrir')?'':'Somente perfil autorizado aprova.'}</div>`:''}
+  <div class="card flat"><div class="row between"><div><h3>Conferência do pacote individual</h3><p class="small muted">Disponível quando os 3 documentos estiverem assinados e bloqueados. O fechamento do lote do evento é uma etapa separada.</p></div>
+   ${p.conferido?`<span class="lock">🔒 Pacote conferido e bloqueado</span>`:`<button class="btn primary" data-act="conferir" data-id="${p.id}" ${done(p)===3&&can('assinar')?'':'disabled'}>Conferir e bloquear pacote</button>`}</div>
+   ${p.excecao?`<div class="notice warn small" style="margin-top:10px">Exceção aprovada: ${esc(p.excecao)}</div>`:''}</div>`;
+}
+/* --- Documentos / pendências --- */
+function tDocumentos(e,g){
+  const key='doc-'+e.id+g,fe=g===FE;
+  let list=aptos(e.id,g);
+  const ls=LEADERS.filter(l=>l.evt===e.id&&l.grupo===g);
+  list=filtrar(list,key,[['area',(p,v)=>p.area===v],['lider',(p,v)=>p.lider===v],['st',(p,v)=>v==='PEND'?(!p.conferido&&!p.excecao):v==='CORR'?emCorr(p)>0:v==='CONF'?p.conferido:done(p)===+v]]);
+  const pg=paginar(list,key);const s=stats(e.id,g);
+  const reqs=S.reqs.filter(r=>r.evt===e.id&&r.grupo===g&&r.status==='PENDENTE');
+  return `<div class="row between"><div><div class="eyebrow">${GR[g].nome}</div><h1>Documentos e pendências</h1></div>
+   <button class="btn" data-act="demo-sign" ${can('assinar')?'':'disabled'}>⚡ Atalho de demonstração: concluir pendências</button></div>
+  <div class="grid g4">${kpi(s.aptos,'Aptos')}${kpi(s.conferidos,'Pacotes conferidos')}${kpi(s.pend,'Pendentes')}${kpi(s.corr+reqs.length,'Correções em aberto')}</div>
+  ${reqs.length?`<div class="card flat"><h3>Solicitações de reabertura</h3>${reqs.map(r=>{const p=person(r.pid);return `<div class="row between" style="padding:10px 0;border-bottom:1px solid var(--border)"><div class="small"><b>${p.codigo} — ${esc(p.nome)}</b> · Documento ${r.n}<br><span class="muted">Motivo: ${esc(r.motivo)} · por ${esc(r.por)}</span></div><button class="btn sm primary" data-act="aprovar-req" data-id="${r.id}" ${can('reabrir')?'':'disabled title="Somente perfil autorizado"'}>Aprovar reabertura</button></div>`}).join('')}</div>`:''}
+  <div class="filters">${fq(key,'Código ou nome')}${fsel(key,'area','Área',AREAS.map(a=>[a,a]))}${fsel(key,'lider','Liderança',ls.map(l=>[l.id,l.codigo+' — '+l.nome]))}${fsel(key,'st','Situação',[['PEND','Não conferido'],['CORR','Em correção'],['CONF','Conferido'],['0','0/3'],['1','1/3'],['2','2/3'],['3','3/3']])}</div>
+  ${pg.total?`<div class="tw"><table><thead><tr><th>Código</th><th>Nome</th><th>Área</th><th>Liderança</th><th>Documentos</th><th>Pacote</th><th></th></tr></thead><tbody>${pg.items.map(p=>{const k=pacote(p),l=leader(p.lider);
+   return `<tr class="click" data-act="pessoa" data-id="${p.id}"><td class="mono">${p.codigo}</td><td><b>${esc(p.nome)}</b></td><td>${p.area}</td><td class="small">${l.codigo}</td><td>${pp(done(p))}</td><td>${chip((k.lock?'🔒 ':'')+k.label,k.tone)}${p.excecao?' '+chip('Exceção','warn'):''}</td>
+   <td data-stop="1" style="text-align:right">${!p.conferido&&!p.excecao&&can('excecao')&&fe?`<button class="btn sm" data-act="excecao" data-id="${p.id}">Aprovar exceção</button>`:''}</td></tr>`}).join('')}</tbody></table></div>${pager(pg)}`
+  :`<div class="card empty"><div style="font-size:36px">✅</div><b>Nenhum pacote com esses filtros</b></div>`}
+  ${fe?'':'<p class="tiny muted">Para Intermitentes, a obrigatoriedade e os modelos dos 3 documentos ainda serão confirmados com o DP (A VALIDAR). Este módulo não tem fechamento de folha.</p>'}`;
+}
+/* --- Fechamento de folha --- */
+function checklist(e,g){
+  const k=gkey(e.id,g),s=stats(e.id,g);
+  const reqs=S.reqs.filter(r=>r.evt===e.id&&r.grupo===g&&r.status==='PENDENTE').length;
+  const items=[
+   {ok:s.pend===0&&s.aptos>0,t:'Pacotes individuais conferidos e bloqueados',d:`${s.conferidos} de ${s.aptos} aptos conferidos${s.excecoes?` · ${s.excecoes} com exceção aprovada`:''}. Faltam ${s.pend}.`,a:s.pend?`<button class="btn sm" data-act="tab" data-t="documentos">Ver pendências</button>`:''},
+   {ok:s.corr+reqs===0,t:'Sem correções ou reaberturas em aberto',d:`${s.corr} documento(s) em correção · ${reqs} solicitação(ões) aguardando autorização.`,a:(s.corr+reqs)?`<button class="btn sm" data-act="tab" data-t="documentos">Resolver</button>`:''},
+   {ok:!!S.jornada[k],t:'Jornada e presença apuradas (A VALIDAR com o DP)',d:S.jornada[k]?'Marcada como apurada (simulação).':'Presença e jornada ainda não apuradas. A regra real de apuração será definida pelo DP.',a:S.jornada[k]?'':`<button class="btn sm" data-act="jornada" ${can('fechar')||can('aprovar')?'':'disabled'}>Marcar como apurada</button>`},
+   {ok:!!S.aprov[k],t:'Conferência da contabilidade aprovada',d:S.aprov[k]?`Aprovada por ${esc(S.aprov[k].por)} em ${fmtTs(S.aprov[k].em)}.`:'Aguardando aprovação de perfil autorizado (Contabilidade ou Administrador).',a:S.aprov[k]?'':`<button class="btn sm" data-act="aprovar" ${can('aprovar')?'':'disabled title="Somente Contabilidade ou Administrador"'}>Aprovar conferência</button>`}
+  ];
+  return items;
+}
+function tFolha(e,g){
+  const k=gkey(e.id,g),lotes=S.lotes[k]||[],atual=lotes[lotes.length-1],items=checklist(e,g),allok=items.every(i=>i.ok);
+  const aberto=!atual||atual.estado==='SUBSTITUIDO';
+  const s=stats(e.id,g);
+  const ret=atual&&atual.retificacao;
+  return `<div><div class="eyebrow">Funcionários do Evento</div><h1>Fechamento de Folha do evento</h1><p class="muted">Exclusivo deste módulo. O fluxo de folha dos Intermitentes será definido à parte.</p></div>
+  <div class="card"><div class="row between"><h3>Checklist de fechamento</h3><div class="row">${pp(Math.round(s.conferidos/(s.aptos||1)*3))}<span class="small muted">${s.conferidos}/${s.aptos} pacotes</span></div></div>
+   <div class="bar" style="margin:10px 0"><i style="width:${s.aptos?Math.round((s.conferidos+s.excecoes)/s.aptos*100):0}%"></i></div>
+   ${items.map(i=>`<div class="check"><span class="ci ${i.ok?'ok':'no'}">${i.ok?'✓':'!'}</span><div><b>${i.t}</b><div class="small muted">${i.d}</div></div><div>${i.a}</div></div>`).join('')}
+   <div class="notice small" style="margin-top:12px">3/3 em todos os pacotes <b>não fecha</b> o lote sozinho: o fechamento exige este checklist completo e uma ação explícita do gestor.</div>
+   ${ret?`<div class="notice warn" style="margin-top:12px"><b>Retificação necessária:</b> um documento foi reaberto depois do fechamento. O lote v${atual.versao} permanece imutável; conclua o checklist e feche uma nova versão (v${atual.versao+1}).</div>`:''}
+   <div class="row" style="margin-top:14px"><button class="btn primary" data-act="fechar" ${allok&&can('fechar')&&(aberto||ret)?'':'disabled'}>🔒 Fechar e bloquear lote${atual&&ret?' (nova versão)':''}</button>
+   ${!can('fechar')?'<span class="small muted">Seu perfil não pode fechar o lote.</span>':!allok?'<span class="small muted">Complete o checklist para liberar.</span>':''}</div></div>
+  ${atual?tLote(e,g,atual):`<div class="card empty"><div style="font-size:34px">📦</div><b>Nenhum lote fechado ainda</b><span class="small">Ao fechar, o lote de Funcionários do Evento ganha identificador, versão e manifesto.</span></div>`}
+  ${lotes.length>1?`<div class="card flat"><h3>Lotes anteriores (imutáveis)</h3>${lotes.slice(0,-1).map(l=>`<div class="row between small" style="padding:8px 0;border-bottom:1px solid var(--border)"><span><b>${l.id}</b> · fechado em ${fmtTs(l.em)}</span>${chip('Substituído por v'+(l.versao+1),'')}</div>`).join('')}</div>`:''}`;
+}
+const dst=[['banco','Banco de dados e armazenamento de arquivos'],['drive','Google Drive (pasta ano/evento/grupo/versão)'],['contab','Disponível para a contabilidade']];
+const stChip=s=>s==='ENTREGUE'?chip('Entregue','ok'):s==='PROCESSANDO'?`<span class="chip info"><span class="spin"></span> Processando</span>`:s==='ERRO'?chip('Erro — tentar novamente','bad'):chip('Aguardando','warn');
+function tLote(e,g,l){
+  const busy=dst.some(([k])=>l.ent[k]==='PROCESSANDO'),all=dst.every(([k])=>l.ent[k]==='ENTREGUE'),err=dst.some(([k])=>l.ent[k]==='ERRO');
+  return `<div class="card"><div class="row between"><div><div class="eyebrow">Lote documental</div><h2>${l.id}</h2></div>${chip(all?'Exportado':'Fechado e bloqueado',all?'ok':'info')}</div>
+   <div class="grid g4" style="margin:14px 0">${kpi('v'+l.versao,'Versão')}${kpi(l.pessoas,'Pessoas no manifesto')}${kpi(l.docs,'Documentos no manifesto')}${kpi(l.excecoes,'Exceções aprovadas')}</div>
+   <p class="small muted">Fechado em ${fmtTs(l.em)} por ${esc(l.por)} · Grupo: <b>${GR[l.grupo].nome}</b> · contém somente documentos deste grupo e deste evento.</p>
+   <h3 style="margin-top:16px">Entrega simulada</h3><div class="notice warn small" style="margin:8px 0">Nada é enviado de verdade: banco, Google Drive e contabilidade são simulados neste protótipo. “Entregue” só aparece depois do sucesso simulado de cada destino.</div>
+   ${dst.map(([k,t])=>`<div class="check"><span class="ci ${l.ent[k]==='ENTREGUE'?'ok':l.ent[k]==='ERRO'?'no':'wait'}">${l.ent[k]==='ENTREGUE'?'✓':l.ent[k]==='ERRO'?'!':'…'}</span><div><b>${t}</b><div class="small muted">${l.ent[k]==='ENTREGUE'?'Confirmado em '+fmtTs(l.entEm[k])+' (v'+l.versao+')':l.ent[k]==='ERRO'?(l.erro||'Falha simulada'):'Ainda não enviado'}</div></div><div>${stChip(l.ent[k])}</div></div>`).join('')}
+   <div class="row" style="margin-top:12px">${all?'':`<button class="btn primary" data-act="enviar" data-m="ok" ${busy||!can('exportar')?'disabled':''}>${err?'Tentar novamente':'Simular envio (sucesso)'}</button><button class="btn" data-act="enviar" data-m="falha" ${busy||err||!can('exportar')?'disabled':''}>Simular falha no Drive</button>`}
+   ${all?'<span class="small muted">Para corrigir depois da entrega, é preciso criar uma nova versão do lote; a versão entregue nunca é alterada.</span>':''}</div></div>`;
+}
+/* --- Relatórios --- */
+function tRelatorios(e,g){
+  const s=stats(e.id,g);
+  const rows=AREAS.map(a=>{const ps=aptos(e.id,g).filter(p=>p.area===a);return[a,ps.length,ps.filter(p=>p.conferido).length,ps.filter(p=>!p.conferido&&done(p)>0).length,ps.filter(p=>done(p)===0).length]});
+  return `<div><div class="eyebrow">${GR[g].nome}</div><h1>Relatórios</h1><p class="muted">Dados agregados somente deste grupo e deste evento. Não há exportação combinada entre grupos.</p></div>
+  <div class="grid g2"><div class="card flat stack" style="gap:8px"><h3>Convocados</h3>
+    ${[['Confirmados',s.conf,'ok'],['Não responderam',s.nr,'warn'],['Não confirmados',s.nc,'bad'],['Formulários pendentes',s.formPend,'warn'],['Aptos',s.aptos,'ok']].map(([t,n,c])=>`<div class="row between"><span>${t}</span>${chip(String(n),c)}</div>`).join('')}
+    <button class="btn sm" data-act="download" style="align-self:flex-start">Baixar CSV (simulado)</button></div>
+   <div class="card flat stack" style="gap:8px"><h3>Situação do evento</h3>
+    ${[['Pacotes conferidos',s.conferidos],['Pendentes',s.pend],['Exceções aprovadas',s.excecoes],['Correções em aberto',s.corr]].map(([t,n])=>`<div class="row between"><span>${t}</span><b class="mono">${n}</b></div>`).join('')}
+    ${g===FE?`<div class="row between"><span>Lote de folha</span>${loteAtual(e.id,g)?chip('v'+loteAtual(e.id,g).versao+' fechado','ok'):chip('Não fechado','warn')}</div>`:''}
+    <button class="btn sm" data-act="download" style="align-self:flex-start">Baixar PDF (simulado)</button></div></div>
+  <h3>Documentos por área</h3><div class="tw"><table><thead><tr><th>Área</th><th>Aptos</th><th>Conferidos</th><th>Em andamento</th><th>Sem nenhum documento</th></tr></thead><tbody>${rows.map(r=>`<tr><td><b>${r[0]}</b></td>${r.slice(1).map(x=>`<td class="mono">${x}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+}
+/* --- Auditoria --- */
+function tAuditoria(e,g){
+  const sess=S.audit.filter(a=>a.evt===e.id&&a.grupo===g);
+  return `<div><div class="eyebrow">Funcionários do Evento · <span class="demo-tag">Planejado</span></div><h1>Auditoria / Backlog</h1></div>
+  <div class="notice warn"><b>Funcionalidade planejada.</b> O mecanismo real de auditoria será implementado em fase futura. Os registros abaixo são <b>fictícios</b> e mostram o que a tela vai exibir: quem alterou o quê, quando e por qual motivo. Em reaberturas, versões antigas nunca são apagadas.</div>
+  <div class="row"><label class="row" style="gap:8px"><input type="checkbox" data-in="showaudit" ${S.showAudit?'checked':''}> Incluir ações feitas nesta sessão do protótipo (simulação local, ${sess.length})</label></div>
+  <div class="tw"><table><thead><tr><th>Data e hora</th><th>Quem</th><th>Ação</th><th>Entidade</th><th>Motivo</th></tr></thead><tbody>
+   ${(S.showAudit?sess.map(a=>`<tr><td class="small">${dBR(a.ts.slice(0,10))} ${a.ts.slice(11)}</td><td>${esc(a.user)}</td><td>${chip(a.acao,'info')}</td><td class="small">${esc(a.entidade)}</td><td class="small">${esc(a.motivo)}</td></tr>`).join(''):'')}
+   ${AUDIT_SEED.map(a=>`<tr><td class="small">${dBR(a[0].slice(0,10))} ${a[0].slice(11)}</td><td>${a[1]}</td><td>${chip(a[2],'')}</td><td class="small">${a[3]}</td><td class="small">${a[4]}</td></tr>`).join('')}</tbody></table></div>
+  <p class="tiny muted">Registro fictício, exemplos de exibição. Regras de quem pode ver os logs e quais ações exigem aprovação ainda serão definidas.</p>`;
+}
+/* --- Arquivo --- */
+function vArquivo(){
+  const evs=EVENTS.filter(archived);
+  return `<div class="page">${crumbsHtml()}<h1>Arquivo</h1><p class="muted" style="margin:6px 0 16px">Eventos com mais de 30 dias saem da operação (hipótese: 30 dias corridos da data do evento, A VALIDAR). Documentos, lotes e histórico são preservados. Não há exclusão automática.</p>
+  <div class="notice info" style="margin-bottom:16px">Acesso somente leitura conforme o perfil. Prazo de retenção legal/contratual será definido com jurídico, DP e LGPD.</div>
+  ${evs.length?`<div class="grid g3">${evs.map(e=>`<div class="card flat stack"><div class="banner" style="margin:-20px -20px 0;border-radius:var(--r-card) var(--r-card) 0 0;background:linear-gradient(135deg,hsl(${e.hue} 20% 38%),hsl(${e.hue} 20% 55%))">${esc(e.sigla)}</div><div class="row">${chip('Arquivado')}${chip('Somente leitura')}</div><h3>${esc(e.nome)}</h3><p class="small muted">${dBR(e.data)} · há ${diffDias(BASE,e.data)} dias</p><p class="small">Documentos e lotes preservados: <b>Funcionários do Evento</b> e <b>Intermitentes</b> (cada grupo com seu lote).</p><button class="btn sm" data-act="arq-view" data-id="${e.id}">Consultar (simulado)</button></div>`).join('')}</div>`:'<div class="card empty"><b>Nenhum evento arquivado</b></div>'}</div>`;
+}
+/* ---------- render ---------- */
+function render(){
+  const act=document.activeElement,keep=act&&act.id&&act.matches('input[type=search],textarea')?{id:act.id,s:act.selectionStart}:null;
+  renderTop();
+  const r=S.route;
+  $('#view').innerHTML=r.screen==='login'?vLogin():r.screen==='home'?vHome():r.screen==='day'?vDay():r.screen==='event'?vEvent():r.screen==='mod'?vMod():r.screen==='arquivo'?vArquivo():'';
+  if(keep){const el=document.getElementById(keep.id);if(el){el.focus();try{el.setSelectionRange(keep.s,keep.s)}catch(_){}}}
+  if(r.screen==='login'){const f=$('#loginform');if(f)f.addEventListener('submit',ev=>{ev.preventDefault();const u=$('#lu').value.trim(),p=$('#lp').value;if(!u||!p){$('#lerr').hidden=false;return}go({screen:'home'})})}
+}
+/* ---------- diálogos ---------- */
+const DLG={};
+function dialog({title,body,actions,wide}){
+  DLG.fns=[];
+  $('#dialog').innerHTML=`<div class="overlay" role="dialog" aria-modal="true" aria-label="${esc(title)}"><div class="dlg ${wide?'wide':''}"><h2>${esc(title)}</h2><div class="stack" style="gap:12px">${body}</div><div class="row" style="justify-content:flex-end">${actions.map((a,i)=>{DLG.fns[i]=a.fn;return `<button class="btn ${a.cls||''}" data-dlg="${i}">${esc(a.label)}</button>`}).join('')}</div></div></div>`;
+  const f=$('#dialog input,#dialog textarea,#dialog select');if(f&&!f.matches('[type=checkbox]'))f.focus();
+}
+const closeDlg=()=>{$('#dialog').innerHTML=''};
+const confirmDlg=(title,body,ok,fn,cls='primary')=>dialog({title,body:`<p>${body}</p>`,actions:[{label:'Cancelar',fn:closeDlg},{label:ok,cls,fn:()=>{closeDlg();fn()}}]});
+/* ---------- visualizador e assinatura ---------- */
+const V={drawn:false,z:1};
+function openViewer(id,n){
+  const p=person(id),d=p.docs[n-1],e=evt(p.evt),locked=d.status==='BLOQUEADO',ativa=d.versoes.find(x=>x.estado==='ATIVA');
+  V.drawn=false;V.z=1;V.id=id;V.n=n;
+  const txt=[['1','O trabalhador declara ciência das condições da prestação de serviço no evento indicado, na data e no turno informados.'],['2','As informações cadastrais prestadas são verdadeiras e foram conferidas pelo operador no momento da assinatura.'],['3','Este texto é fictício e serve apenas para demonstrar a leitura, a rolagem e o zoom do documento.'],['4','O conteúdo e o modelo definitivos do documento serão definidos pelo DP e pelo jurídico (A VALIDAR).']];
+  $('#modal').innerHTML=`<div class="viewer" role="dialog" aria-modal="true" aria-label="${d.nome}">
+   <div class="vh"><div><div class="eyebrow">${GR[p.grupo].nome} · ${esc(e.nome)}</div><b>${d.nome}</b> <span class="muted small">· ${p.codigo} — ${esc(p.nome)}</span></div>
+   <div class="row"><button class="btn sm" id="vo" data-act="offline">${S.offline?'Voltar online':'Simular sem conexão'}</button><button class="btn sm" data-act="zoom" data-d="-0.15" aria-label="Diminuir zoom">−</button><button class="btn sm" data-act="zoom" data-d="0.15" aria-label="Aumentar zoom">＋</button><button class="btn sm primary" data-act="closeviewer">Fechar</button></div></div>
+   <div class="vb"><div class="pdfwrap"><article class="pdfpage" id="pdfpage"><div class="wm">DEMONSTRAÇÃO</div><h4>${d.nome.toUpperCase()} — MODELO ${n}</h4><p style="text-align:center;margin-bottom:16px;font-size:.85em">${esc(e.nome)} · ${dBR(e.data)} · ${esc(e.local)}</p>
+    <p><b>Trabalhador:</b> ${esc(p.nome)} (código ${p.codigo})<br><b>Grupo:</b> ${GR[p.grupo].nome} · <b>Área:</b> ${p.area} · <b>Turno:</b> ${p.turno}</p><br>
+    ${txt.map(([a,t])=>`<p style="margin-bottom:12px"><b>${a}.</b> ${t}</p>`).join('')}${txt.map(([a,t])=>`<p style="margin-bottom:12px"><b>${+a+4}.</b> ${t}</p>`).join('')}
+    <div style="margin-top:36px;border-top:1px solid #999;width:60%;padding-top:6px;font-size:.9em">${locked&&ativa?`✔ Assinado em ${fmtTs(ativa.em)} · v${ativa.v}`:'Assinatura do trabalhador'}</div></article></div>
+   <aside class="sigpanel">${locked?`<div class="notice ok"><b>🔒 Documento assinado e bloqueado.</b><br>Versão ${ativa.v} · ${fmtTs(ativa.em)}<br>Operador: ${esc(ativa.por)}</div><p class="small muted">Para corrigir, use “Reabrir” na ficha. A versão atual será preservada no histórico.</p>`:
+    `<h3>Assinatura</h3><div class="notice warn small"><b>Demonstração:</b> esta assinatura desenhada não tem validade jurídica.</div>
+     <p class="small muted">1. Leia o documento ao lado. 2. Peça ao trabalhador para assinar com o dedo ou a caneta. 3. Confirme.</p>
+     <canvas id="sig" class="sigpad" width="700" height="380" aria-label="Área de assinatura"></canvas>
+     <div id="sigerr" class="notice bad small" hidden></div>
+     <div class="row"><button class="btn sm" data-act="sigclear">Limpar</button><button class="btn primary grow" id="sigok" data-act="sigconfirm" disabled>Confirmar assinatura</button></div>
+     <p class="tiny muted">Depois de confirmar, o documento fica bloqueado para edição.</p>`}</aside></div></div>`;
+  if(!locked)initSig();
+}
+function initSig(){
+  const c=$('#sig');if(!c)return;const x=c.getContext('2d');x.lineWidth=4;x.lineCap='round';x.strokeStyle='#1b2b33';let down=false;
+  const pos=ev=>{const r=c.getBoundingClientRect();return[(ev.clientX-r.left)*c.width/r.width,(ev.clientY-r.top)*c.height/r.height]};
+  c.addEventListener('pointerdown',ev=>{down=true;c.setPointerCapture(ev.pointerId);const[a,b]=pos(ev);x.beginPath();x.moveTo(a,b)});
+  c.addEventListener('pointermove',ev=>{if(!down)return;const[a,b]=pos(ev);x.lineTo(a,b);x.stroke();if(!V.drawn){V.drawn=true;$('#sigok').disabled=false}});
+  const up=()=>{down=false};c.addEventListener('pointerup',up);c.addEventListener('pointercancel',up);
+}
+function sigConfirm(){
+  const p=person(V.id),d=p.docs[V.n-1];
+  if(!V.drawn)return;
+  if(S.offline){const el=$('#sigerr');el.hidden=false;el.textContent='Sem conexão: a assinatura NÃO foi confirmada. O desenho foi mantido nesta tela; tente novamente quando voltar a conexão.';return}
+  confirmDlg('Confirmar assinatura?',`Após confirmar, o <b>${d.nome}</b> de <b>${esc(p.nome)}</b> será bloqueado para edição. Esta é uma assinatura de demonstração.`,'Confirmar e bloquear',()=>{
+    if(d.status==='BLOQUEADO')return;
+    const v=d.versoes[d.versoes.length-1];v.estado='ATIVA';v.em=nowSim().replace(' ','T');v.por=PERFIS[S.perfil].nome;d.status='BLOQUEADO';
+    log(p.grupo,p.evt,'CONFIRMOU_ASSINATURA',`DOC-${d.n} / ${p.id}`,'');
+    toast(`${d.nome} assinado e bloqueado (${done(p)}/3)`);
+    openViewer(p.id,d.n);render();
+  });
+}
+/* ---------- ações ---------- */
+const ACT={
+ go(el){go(JSON.parse(el.dataset.r))},
+ nodata(el){toast('Sem eventos em '+dBR(el.dataset.d))},
+ mes(el){let[y,m]=S.mes.split('-').map(Number);m+=+el.dataset.d;if(m<1){m=12;y--}if(m>12){m=1;y++}S.mes=`${y}-${String(m).padStart(2,'0')}`;render()},
+ dismiss(el){S.dismissed.push(el.dataset.id);render()},
+ restore(){S.dismissed=[];render()},
+ offline(){S.offline=!S.offline;toast(S.offline?'Modo sem conexão (simulado)':'Conexão restabelecida');const vo=$('#vo');if(vo)vo.textContent=S.offline?'Voltar online':'Simular sem conexão';render()},
+ logout(){S.route={screen:'login'};render()},
+ recover(){dialog({title:'Recuperar acesso',body:'<p class="muted">Demonstração: nenhum e-mail é enviado de verdade.</p><label class="f">Usuário ou e-mail<input type="text" id="rc"></label>',actions:[{label:'Cancelar',fn:closeDlg},{label:'Simular envio',cls:'primary',fn:()=>{closeDlg();toast('Simulação: nenhum e-mail foi enviado')}}]})},
+ enter(el){const g=el.dataset.g;go({screen:'mod',evt:S.route.evt,grupo:g,tab:'resumo'})},
+ tab(el){const r=S.route;go({screen:'mod',evt:r.evt,grupo:r.grupo,tab:el.dataset.t})},
+ area(el){const r=S.route;go({screen:'mod',evt:r.evt,grupo:r.grupo,tab:'areas',area:el.dataset.a})},
+ lider(el){const r=S.route;go({screen:'mod',evt:r.evt,grupo:r.grupo,tab:'areas',area:r.area,lider:el.dataset.id})},
+ pessoa(el){const r=S.route,p=person(el.dataset.id);go({screen:'mod',evt:r.evt,grupo:r.grupo,tab:r.tab,area:r.tab==='areas'?p.area:undefined,lider:r.tab==='areas'?p.lider:undefined,pid:p.id})},
+ page(el){S.pg[el.dataset.k]=(S.pg[el.dataset.k]||0)+ +el.dataset.d;render()},
+ reveal(el){S.reveal[el.dataset.id]=1;log(S.route.grupo,S.route.evt,'VISUALIZOU_DADOS_RESTRITOS',el.dataset.id,'');render()},
+ download(){toast('Download simulado: nenhum arquivo foi gerado')},
+ 'arq-view'(el){const e=evt(el.dataset.id);dialog({title:e.nome,wide:1,body:`<div class="notice info small">Evento arquivado há ${diffDias(BASE,e.data)} dias. Somente leitura.</div><div class="grid g2"><div class="card flat"><h4>${GR[FE].nome}</h4><p class="small muted">Lote v1 preservado · PDFs e histórico mantidos.</p></div><div class="card flat"><h4>${GR[INT].nome}</h4><p class="small muted">Lote próprio preservado · PDFs e histórico mantidos.</p></div></div><p class="small muted">Os grupos continuam separados também no arquivo. Nenhum documento é excluído automaticamente.</p>`,actions:[{label:'Fechar',cls:'primary',fn:closeDlg}]})},
+ invite(){
+  const r=S.route,e=evt(r.evt),g=r.grupo,ls=LEADERS.filter(l=>l.evt===e.id&&l.grupo===g);
+  const livres=MESTRE.filter(m=>!PEOPLE.some(p=>p.evt===e.id&&p.grupo===g&&p.codigo===m.codigo));
+  dialog({title:'Nova convocação — '+GR[g].nome,wide:1,body:`<div class="notice ${GR[g].cls==='fe'?'info':'int'} small">Evento: <b>${esc(e.nome)}</b> · Grupo: <b>${GR[g].nome}</b> (fixos). O envio é simulado.</div>
+   <label class="f">Pessoa (cadastro mestre)<select id="iv-p">${livres.map(m=>`<option value="${m.codigo}">${m.codigo} — ${esc(m.nome)}</option>`).join('')}</select></label>
+   <div class="grid g2"><label class="f">Área<select id="iv-a">${AREAS.map(a=>`<option>${a}</option>`).join('')}</select></label><label class="f">Liderança<select id="iv-l">${ls.map(l=>`<option value="${l.id}">${l.codigo} — ${esc(l.nome)}</option>`).join('')}</select></label>
+   <label class="f">Função<input type="text" id="iv-f" value="Equipe operacional"></label><label class="f">Turno<input type="text" id="iv-t" value="08:00–18:00"></label></div>
+   <label class="f">Canal<select id="iv-c"><option value="EMAIL">E-mail (simulado)</option><option value="PORTAL">Aplicativo / portal (simulado)</option></select></label>`,
+   actions:[{label:'Cancelar',fn:closeDlg},{label:'Simular envio',cls:'primary',fn:()=>{
+    const cod=$('#iv-p').value,lid=$('#iv-l').value;if(!cod||!lid){toast('Escolha a pessoa e a liderança');return}
+    const outro=PEOPLE.find(p=>p.evt===e.id&&p.grupo!==g&&p.codigo===cod);
+    const fazer=()=>{const m=MESTRE.find(x=>x.codigo===cod);addPerson({evt:e.id,grupo:g,codigo:cod,nome:m.nome,area:$('#iv-a')?$('#iv-a').value:'BAR',lider:lid,conv:'NAO_RESPONDEU',form:'NAO_INICIADO',canal:$('#iv-c')?$('#iv-c').value:'EMAIL',funcao:'Equipe operacional'});log(g,e.id,'CONVOCOU',cod,'');closeDlg();toast('Convite simulado: '+m.nome+' agora está como “Não respondeu”');render()};
+    const area=$('#iv-a').value;if(outro){dialog({title:'Possível conflito entre grupos',body:`<div class="notice warn"><b>${esc(outro.nome)}</b> já participa deste evento no grupo <b>${GR[outro.grupo].nome}</b>. Nenhuma migração é feita automaticamente: a decisão é administrativa.</div>`,actions:[{label:'Cancelar',fn:closeDlg},{label:'Registrar mesmo assim',cls:'primary',fn:()=>{const v=area;const m=MESTRE.find(x=>x.codigo===cod);addPerson({evt:e.id,grupo:g,codigo:cod,nome:m.nome,area:v,lider:lid,conv:'NAO_RESPONDEU',form:'NAO_INICIADO'});log(g,e.id,'CONVOCOU_COM_ALERTA_DE_CONFLITO',cod,'Decisão administrativa');closeDlg();toast('Convite simulado, com alerta de conflito registrado');render()}}]});return}
+    fazer();}}]});
+ },
+ portal(el){
+  const p=person(el.dataset.id),e=evt(p.evt);
+  if(p.conv==='CONFIRMADO'){return ACT.form(el)}
+  dialog({title:'Portal do trabalhador — convite',wide:1,body:`<div class="notice info small">Simulação da resposta do trabalhador (portal/e-mail). Nada é enviado.</div><div class="card flat"><div class="eyebrow">${GR[p.grupo].nome}</div><h3>${esc(e.nome)}</h3><p class="small muted">📍 ${esc(e.local)} · 📅 ${dBR(e.data)} · 🕗 ${p.turno}<br>Função: ${p.funcao} · Área: ${p.area}</p></div><p>Olá, <b>${esc(p.nome)}</b>. Você confirma sua participação?</p>`,
+   actions:[{label:'Não confirmar',cls:'danger',fn:()=>{p.conv='NAO_CONFIRMADO';p.form='NAO_INICIADO';log(p.grupo,p.evt,'RESPOSTA_CONVITE',p.id,'Não confirmado');closeDlg();toast('Resposta registrada: Não confirmado. Segue visível em Convocados, fora da operação.');render()}},
+            {label:'Confirmar participação',cls:'primary',fn:()=>{p.conv='CONFIRMADO';p.form='PENDENTE';log(p.grupo,p.evt,'RESPOSTA_CONVITE',p.id,'Confirmado');closeDlg();toast('Confirmado. O formulário ficou pendente: ainda não está apto.');render()}}]});
+ },
+ form(el){
+  const p=person(el.dataset.id);
+  dialog({title:'Formulário de cadastro',wide:1,body:`<div class="notice info small">Concluir o formulário não gera assinatura nem presença. Campos de demonstração (a lista real será definida com o DP).</div>
+   <div class="grid g2"><label class="f">Nome completo<input type="text" value="${esc(p.nome)}"></label><label class="f">Telefone<input type="text" value="(21) 90000-0000"></label><label class="f">E-mail<input type="text" value="${p.codigo}@exemplo.invalid"></label><label class="f">Endereço<input type="text" value="Rua de Demonstração, s/n"></label></div>
+   <label class="row" style="gap:8px"><input type="checkbox" id="fm-ok"> Confirmo que os dados acima estão corretos (consentimentos a validar)</label>`,
+   actions:[{label:'Fechar',fn:closeDlg},{label:'Concluir formulário',cls:'primary',fn:()=>{if(!$('#fm-ok').checked){toast('Marque a confirmação para concluir');return}p.form='CONCLUIDO';log(p.grupo,p.evt,'CONCLUIU_FORMULARIO',p.id,'');closeDlg();toast(p.nome+' agora está apto e entra na lista operacional');render()}}]});
+ },
+ viewer(el){openViewer(el.dataset.id,+el.dataset.n)},
+ closeviewer(){$('#modal').innerHTML='';render()},
+ zoom(el){V.z=Math.max(.6,Math.min(1.8,V.z+ +el.dataset.d));$('#pdfpage').style.setProperty('--z',V.z)},
+ sigclear(){const c=$('#sig');c.getContext('2d').clearRect(0,0,c.width,c.height);V.drawn=false;$('#sigok').disabled=true},
+ sigconfirm(){sigConfirm()},
+ conferir(el){const p=person(el.dataset.id);confirmDlg('Conferir e bloquear o pacote?',`O pacote individual de <b>${esc(p.nome)}</b> (3/3) será conferido e bloqueado. Isso não fecha o lote do evento.`,'Conferir e bloquear',()=>{p.conferido=true;log(p.grupo,p.evt,'CONFERIU_PACOTE','PACOTE / '+p.id,'');toast('Pacote conferido e bloqueado');render()})},
+ reopen(el){
+  const p=person(el.dataset.id),n=+el.dataset.n,d=p.docs[n-1],auth=can('reabrir');
+  dialog({title:(auth?'Reabrir ':'Solicitar correção do ')+d.nome,body:`<div class="notice warn small">A versão atual será <b>preservada</b> no histórico e uma nova versão será criada para nova assinatura. Nada é apagado.${auth?'':' Sua solicitação precisa ser aprovada por perfil autorizado.'}</div><label class="f">Motivo (obrigatório)<textarea id="rp-m" placeholder="Explique o motivo da correção"></textarea></label><div id="rp-e" class="notice bad small" hidden>Informe um motivo com pelo menos 10 caracteres.</div>`,
+   actions:[{label:'Cancelar',fn:closeDlg},{label:auth?'Reabrir documento':'Enviar solicitação',cls:'primary',fn:()=>{const m=$('#rp-m').value.trim();if(m.length<10){$('#rp-e').hidden=false;return}
+    if(auth){reabrir(p,n,m);}else{S.reqs.push({id:'R'+S.seq++,pid:p.id,n,motivo:m,por:PERFIS[S.perfil].nome,status:'PENDENTE',evt:p.evt,grupo:p.grupo});log(p.grupo,p.evt,'SOLICITOU_REABERTURA',`DOC-${n} / ${p.id}`,m);toast('Solicitação enviada para aprovação')}
+    closeDlg();render()}}]});
+ },
+ 'aprovar-req'(el){const r=S.reqs.find(x=>x.id===el.dataset.id);const p=person(r.pid);r.status='APROVADA';reabrir(p,r.n,r.motivo,true);render()},
+ excecao(el){const p=person(el.dataset.id);dialog({title:'Aprovar exceção',body:`<p><b>${esc(p.nome)}</b> poderá ficar fora do fechamento mesmo sem pacote conferido.</p><label class="f">Tipo e motivo<select id="ex-t"><option>Ausência justificada</option><option>Substituição</option><option>Documento dispensado (A VALIDAR)</option></select></label><label class="f">Detalhe (obrigatório)<textarea id="ex-m"></textarea></label><div id="ex-e" class="notice bad small" hidden>Descreva o motivo da exceção.</div>`,actions:[{label:'Cancelar',fn:closeDlg},{label:'Aprovar exceção',cls:'primary',fn:()=>{const m=$('#ex-m').value.trim();if(m.length<5){$('#ex-e').hidden=false;return}p.excecao=$('#ex-t').value+': '+m;log(p.grupo,p.evt,'APROVOU_EXCECAO',p.id,p.excecao);closeDlg();toast('Exceção aprovada e registrada');render()}}]})},
+ 'demo-sign'(){const r=S.route;let n=0;aptos(r.evt,r.grupo).forEach(p=>{if(p.excecao)return;p.docs.forEach(d=>{if(d.status!=='BLOQUEADO'){const v=d.versoes[d.versoes.length-1];v.estado='ATIVA';v.em=nowSim().replace(' ','T');v.por='Atalho de demonstração';d.status='BLOQUEADO'}});if(!p.conferido){p.conferido=true;n++}});log(r.grupo,r.evt,'ATALHO_DEMO_CONCLUIR_PENDENCIAS','Todos os aptos','Somente protótipo');toast('Atalho de demonstração: '+n+' pacotes concluídos (não existe na solução real)');render()},
+ jornada(){const k=gkey(S.route.evt,S.route.grupo);S.jornada[k]=1;log(S.route.grupo,S.route.evt,'MARCOU_JORNADA_APURADA','Evento','Simulação');render()},
+ aprovar(){const k=gkey(S.route.evt,S.route.grupo);S.aprov[k]={por:PERFIS[S.perfil].nome,em:nowSim()};log(S.route.grupo,S.route.evt,'APROVOU_CONFERENCIA','Evento','');render()},
+ fechar(){
+  const r=S.route,e=evt(r.evt),g=r.grupo,k=gkey(e.id,g),s=stats(e.id,g);
+  confirmDlg('Fechar e bloquear o lote?',`O lote de <b>${GR[g].nome}</b> do evento <b>${esc(e.nome)}</b> será bloqueado e preparado para entrega. O lote do outro grupo <b>não</b> é afetado.`,'Fechar e bloquear',()=>{
+    const arr=S.lotes[k]=S.lotes[k]||[];const v=arr.length+1;if(arr.length)arr[arr.length-1].estado='SUBSTITUIDO';
+    arr.push({id:`LOTE-${e.id}-${GR[g].curto}-v${v}`,versao:v,grupo:g,em:nowSim().replace(' ','T'),por:PERFIS[S.perfil].nome,pessoas:s.aptos-s.excecoes,docs:(s.aptos-s.excecoes)*3,excecoes:s.excecoes,estado:'FECHADO',retificacao:false,ent:{banco:'AGUARDANDO',drive:'AGUARDANDO',contab:'AGUARDANDO'},entEm:{}});
+    S.jornada[k]=S.jornada[k];log(g,e.id,'FECHOU_LOTE','LOTE v'+v,'');toast('Lote v'+v+' fechado e bloqueado');render()});
+ },
+ enviar(el){envio(el.dataset.m)}
+};
+function reabrir(p,n,motivo,viaReq){
+  const d=p.docs[n-1];d.status='EM_CORRECAO';const cur=d.versoes.find(x=>x.estado==='ATIVA');if(cur)cur.estado='SUBSTITUIDA';
+  d.versoes.push({v:d.versoes.length+1,estado:'AGUARDANDO',em:null,por:null});p.conferido=false;
+  const k=gkey(p.evt,p.grupo);delete S.aprov[k];const l=loteAtual(p.evt,p.grupo);if(l&&(l.estado==='FECHADO'||l.estado==='EXPORTADO'))l.retificacao=true;
+  log(p.grupo,p.evt,viaReq?'APROVOU_REABERTURA':'REABRIU_DOCUMENTO',`DOC-${n} / ${p.id}`,motivo+' (v'+(d.versoes.length-1)+' preservada)');
+  toast('Documento reaberto: v'+(d.versoes.length-1)+' preservada, nova versão criada'+(l?'. O lote já fechado exige retificação.':''));
+}
+function envio(modo){
+  const r=S.route,l=loteAtual(r.evt,r.grupo);if(!l)return;
+  S.fail=modo==='falha';
+  const ordem=['banco','drive','contab'];
+  const passo=()=>{
+    const prox=ordem.find(k=>l.ent[k]!=='ENTREGUE');if(!prox){render();return}
+    l.ent[prox]='PROCESSANDO';render();
+    setTimeout(()=>{
+      if(S.offline||(S.fail&&prox==='drive')){l.ent[prox]='ERRO';l.erro=S.offline?'Sem conexão. O lote continua guardado; tente novamente.':'Falha simulada ao enviar ao Google Drive. O lote continua guardado; tente novamente.';S.fail=false;render();return}
+      l.ent[prox]='ENTREGUE';l.entEm[prox]=nowSim().replace(' ','T');l.erro='';
+      if(prox==='contab'){l.estado='EXPORTADO';log(r.grupo,r.evt,'ENTREGA_SIMULADA_CONCLUIDA',l.id,'')}
+      render();passo();
+    },900);
+  };
+  ordem.forEach(k=>{if(l.ent[k]==='ERRO')l.ent[k]='AGUARDANDO'});
+  passo();
+}
+/* ---------- eventos ---------- */
+document.addEventListener('click',ev=>{
+  const dl=ev.target.closest('[data-dlg]');if(dl){const f=DLG.fns[+dl.dataset.dlg];f&&f();return}
+  if(ev.target.closest('[data-stop]')&&!ev.target.closest('button'))return;
+  const el=ev.target.closest('[data-act]');if(!el)return;
+  if(el.closest('[data-stop]')&&el.tagName==='TR')return;
+  const f=ACT[el.dataset.act];if(f){ev.stopPropagation();f(el)}
+});
+document.addEventListener('input',ev=>{
+  const el=ev.target;if(!el.dataset)return;
+  if(el.dataset.in==='filt'){const f=S.filt[el.dataset.key]=S.filt[el.dataset.key]||{};f[el.dataset.k]=el.value;S.pg[el.dataset.key]=0;render()}
+});
+document.addEventListener('change',ev=>{
+  const el=ev.target;if(!el.dataset)return;
+  if(el.dataset.in==='perfil'){S.perfil=el.value;toast('Perfil: '+PERFIS[S.perfil].nome);const r=S.route;if(r.screen==='mod'&&!PERFIS[S.perfil].grupos.includes(r.grupo)){render();return}if(S.perfil==='lider'&&r.screen==='mod'&&r.tab==='areas'&&r.lider&&r.lider!=='L0801'){go({screen:'mod',evt:r.evt,grupo:r.grupo,tab:'areas'});return}render()}
+  if(el.dataset.in==='showaudit'){S.showAudit=el.checked;render()}
+});
+document.addEventListener('keydown',ev=>{if(ev.key==='Escape'){if($('#dialog').innerHTML)closeDlg()}});
+render();
+</script>
+</body>
+</html>
