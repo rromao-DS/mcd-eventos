@@ -1,0 +1,1096 @@
+{
+  "_info": "TODOS OS DADOS SÃO FICTÍCIOS. Usar somente para prototipação no Claude Artifacts. Escalas 3.000 / 9.000 são capacidade de referência, não o tamanho da fixture.",
+  "projeto": "MCD Eventos",
+  "versao": "3.0",
+  "data_base_simulada": "2026-10-23",
+  "timezone": "America/Sao_Paulo",
+  "capacidades_alvo": {
+    "participantes_evento": 3000,
+    "documentos_por_participante_no_fluxo": 3,
+    "documentos_potenciais_por_evento": 9000
+  },
+  "politica_demo": {
+    "janela_operacional_dias": 30,
+    "excluir_documentos_apos_30_dias": false,
+    "auditoria_backend_implementada": false,
+    "drive_integrado": false
+  },
+  "eventos": [
+    {
+      "id": "EVT-001",
+      "nome": "Operação Maracanã — Evento A (fictício)",
+      "data": "2026-10-25",
+      "inicio": "08:00",
+      "fim": "23:00",
+      "local": "Estádio do Maracanã, Rio de Janeiro/RJ",
+      "banner_url": null,
+      "status": "PLANEJADO",
+      "grupos_disponiveis": [
+        "INTERMITENTE",
+        "FUNCIONARIO_EVENTO"
+      ]
+    },
+    {
+      "id": "EVT-002",
+      "nome": "Evento B — Demonstração (fictício)",
+      "data": "2026-10-25",
+      "inicio": "10:00",
+      "fim": "21:00",
+      "local": "Rio de Janeiro/RJ — Local fictício",
+      "banner_url": null,
+      "status": "PLANEJADO",
+      "grupos_disponiveis": [
+        "INTERMITENTE",
+        "FUNCIONARIO_EVENTO"
+      ]
+    },
+    {
+      "id": "EVT-OLD",
+      "nome": "Evento Arquivado — Demonstração",
+      "data": "2026-08-15",
+      "inicio": "09:00",
+      "fim": "18:00",
+      "local": "Local fictício",
+      "banner_url": null,
+      "status": "ARQUIVADO",
+      "grupos_disponiveis": [
+        "INTERMITENTE",
+        "FUNCIONARIO_EVENTO"
+      ]
+    }
+  ],
+  "areas": [
+    {
+      "id": "AR01",
+      "nome": "BAR"
+    },
+    {
+      "id": "AR02",
+      "nome": "AMBULANTE"
+    },
+    {
+      "id": "AR03",
+      "nome": "SERVIÇOS GERAIS"
+    },
+    {
+      "id": "AR04",
+      "nome": "FINANCEIRO"
+    },
+    {
+      "id": "AR05",
+      "nome": "ESCRITÓRIO"
+    },
+    {
+      "id": "AR06",
+      "nome": "COZINHA"
+    },
+    {
+      "id": "AR07",
+      "nome": "PRODUÇÃO"
+    },
+    {
+      "id": "AR08",
+      "nome": "ESTOQUISTA"
+    },
+    {
+      "id": "AR09",
+      "nome": "STAFF"
+    }
+  ],
+  "liderancas": [
+    {
+      "id": "L0801",
+      "codigo": "0801",
+      "nome_completo": "Carlos Henrique Pereira",
+      "area_id": "AR01",
+      "evento_id": "EVT-001",
+      "grupo": "FUNCIONARIO_EVENTO"
+    },
+    {
+      "id": "L0804",
+      "codigo": "0804",
+      "nome_completo": "Roberta Ferreira Dias",
+      "area_id": "AR01",
+      "evento_id": "EVT-001",
+      "grupo": "FUNCIONARIO_EVENTO"
+    },
+    {
+      "id": "L0802",
+      "codigo": "0802",
+      "nome_completo": "Paula Ribeiro Gomes",
+      "area_id": "AR06",
+      "evento_id": "EVT-001",
+      "grupo": "FUNCIONARIO_EVENTO"
+    },
+    {
+      "id": "L0803",
+      "codigo": "0803",
+      "nome_completo": "Bruno Almeida Costa",
+      "area_id": "AR03",
+      "evento_id": "EVT-001",
+      "grupo": "FUNCIONARIO_EVENTO"
+    },
+    {
+      "id": "L0805",
+      "codigo": "0805",
+      "nome_completo": "Sérgio Nascimento Lima",
+      "area_id": "AR07",
+      "evento_id": "EVT-001",
+      "grupo": "FUNCIONARIO_EVENTO"
+    },
+    {
+      "id": "L0901",
+      "codigo": "0901",
+      "nome_completo": "Lívia Martins Oliveira",
+      "area_id": "AR09",
+      "evento_id": "EVT-001",
+      "grupo": "INTERMITENTE"
+    },
+    {
+      "id": "L0810",
+      "codigo": "0810",
+      "nome_completo": "Renato Pires Mendes",
+      "area_id": "AR01",
+      "evento_id": "EVT-002",
+      "grupo": "FUNCIONARIO_EVENTO"
+    }
+  ],
+  "participacoes": [
+    {
+      "participacao_id": "P001",
+      "evento_id": "EVT-001",
+      "grupo": "FUNCIONARIO_EVENTO",
+      "codigo_funcionario": "001245",
+      "nome_completo": "Ana Carolina Souza",
+      "foto_url": null,
+      "telefone_ficticio": "(21) 90000-0000",
+      "email_ficticio": "001245@exemplo.invalid",
+      "endereco_ficticio": "Rua de Demonstração, s/n — Rio de Janeiro/RJ",
+      "area_id": "AR01",
+      "lider_id": "L0801",
+      "funcao": "Equipe operacional",
+      "turno": "08:00–18:00",
+      "convocacao": {
+        "status": "CONFIRMADO",
+        "canal": "EMAIL",
+        "respondida_em_ficticio": "2026-10-23T15:10:00-03:00"
+      },
+      "formulario": {
+        "status": "CONCLUIDO"
+      },
+      "apto_operacao": true,
+      "status_presenca": "NAO_REGISTRADA",
+      "pacote": {
+        "total_obrigatorios": 3,
+        "documentos": [
+          {
+            "id": "DOC-1",
+            "nome": "Documento 1",
+            "modelo": "MODELO_1",
+            "status": "BLOQUEADO",
+            "versao_ativa": 1,
+            "versoes": [
+              {
+                "numero": 1,
+                "status": "ATIVA",
+                "assinada_em_ficticio": "2026-10-25T10:00:00-03:00"
+              }
+            ]
+          },
+          {
+            "id": "DOC-2",
+            "nome": "Documento 2",
+            "modelo": "MODELO_2",
+            "status": "BLOQUEADO",
+            "versao_ativa": 1,
+            "versoes": [
+              {
+                "numero": 1,
+                "status": "ATIVA",
+                "assinada_em_ficticio": "2026-10-25T10:00:00-03:00"
+              }
+            ]
+          },
+          {
+            "id": "DOC-3",
+            "nome": "Documento 3",
+            "modelo": "MODELO_3",
+            "status": "BLOQUEADO",
+            "versao_ativa": 1,
+            "versoes": [
+              {
+                "numero": 1,
+                "status": "ATIVA",
+                "assinada_em_ficticio": "2026-10-25T10:00:00-03:00"
+              }
+            ]
+          }
+        ],
+        "quantos_bloqueados": 3,
+        "status": "BLOQUEADO"
+      }
+    },
+    {
+      "participacao_id": "P002",
+      "evento_id": "EVT-001",
+      "grupo": "FUNCIONARIO_EVENTO",
+      "codigo_funcionario": "001246",
+      "nome_completo": "Pedro Martins Lima",
+      "foto_url": null,
+      "telefone_ficticio": "(21) 90000-0000",
+      "email_ficticio": "001246@exemplo.invalid",
+      "endereco_ficticio": "Rua de Demonstração, s/n — Rio de Janeiro/RJ",
+      "area_id": "AR06",
+      "lider_id": "L0802",
+      "funcao": "Equipe operacional",
+      "turno": "08:00–18:00",
+      "convocacao": {
+        "status": "NAO_RESPONDEU",
+        "canal": "EMAIL",
+        "respondida_em_ficticio": null
+      },
+      "formulario": {
+        "status": "NAO_INICIADO"
+      },
+      "apto_operacao": false,
+      "status_presenca": "NAO_REGISTRADA",
+      "pacote": {
+        "total_obrigatorios": 3,
+        "documentos": [
+          {
+            "id": "DOC-1",
+            "nome": "Documento 1",
+            "modelo": "MODELO_1",
+            "status": "PENDENTE",
+            "versao_ativa": 1,
+            "versoes": [
+              {
+                "numero": 1,
+                "status": "ATIVA",
+                "assinada_em_ficticio": null
+              }
+            ]
+          },
+          {
+            "id": "DOC-2",
+            "nome": "Documento 2",
+            "modelo": "MODELO_2",
+            "status": "PENDENTE",
+            "versao_ativa": 1,
+            "versoes": [
+              {
+                "numero": 1,
+                "status": "ATIVA",
+                "assinada_em_ficticio": null
+              }
+            ]
+          },
+          {
+            "id": "DOC-3",
+            "nome": "Documento 3",
+            "modelo": "MODELO_3",
+            "status": "PENDENTE",
+            "versao_ativa": 1,
+            "versoes": [
+              {
+                "numero": 1,
+                "status": "ATIVA",
+                "assinada_em_ficticio": null
+              }
+            ]
+          }
+        ],
+        "quantos_bloqueados": 0,
+        "status": "PENDENTE"
+      }
+    },
+    {
+      "participacao_id": "P003",
+      "evento_id": "EVT-001",
+      "grupo": "FUNCIONARIO_EVENTO",
+      "codigo_funcionario": "001247",
+      "nome_completo": "Maria de Fátima Costa",
+      "foto_url": null,
+      "telefone_ficticio": "(21) 90000-0000",
+      "email_ficticio": "001247@exemplo.invalid",
+      "endereco_ficticio": "Rua de Demonstração, s/n — Rio de Janeiro/RJ",
+      "area_id": "AR03",
+      "lider_id": "L0803",
+      "funcao": "Equipe operacional",
+      "turno": "08:00–18:00",
+      "convocacao": {
+        "status": "NAO_CONFIRMADO",
+        "canal": "EMAIL",
+        "respondida_em_ficticio": "2026-10-23T15:10:00-03:00"
+      },
+      "formulario": {
+        "status": "NAO_INICIADO"
+      },
+      "apto_operacao": false,
+      "status_presenca": "NAO_REGISTRADA",
+      "pacote": {
+        "total_obrigatorios": 3,
+        "documentos": [
+          {
+            "id": "DOC-1",
+            "nome": "Documento 1",
+            "modelo": "MODELO_1",
+            "status": "PENDENTE",
+            "versao_ativa": 1,
+            "versoes": [
+              {
+                "numero": 1,
+                "status": "ATIVA",
+                "assinada_em_ficticio": null
+              }
+            ]
+          },
+          {
+            "id": "DOC-2",
+            "nome": "Documento 2",
+            "modelo": "MODELO_2",
+            "status": "PENDENTE",
+            "versao_ativa": 1,
+            "versoes": [
+              {
+                "numero": 1,
+                "status": "ATIVA",
+                "assinada_em_ficticio": null
+              }
+            ]
+          },
+          {
+            "id": "DOC-3",
+            "nome": "Documento 3",
+            "modelo": "MODELO_3",
+            "status": "PENDENTE",
+            "versao_ativa": 1,
+            "versoes": [
+              {
+                "numero": 1,
+                "status": "ATIVA",
+                "assinada_em_ficticio": null
+              }
+            ]
+          }
+        ],
+        "quantos_bloqueados": 0,
+        "status": "PENDENTE"
+      }
+    },
+    {
+      "participacao_id": "P004",
+      "evento_id": "EVT-001",
+      "grupo": "FUNCIONARIO_EVENTO",
+      "codigo_funcionario": "001248",
+      "nome_completo": "João Augusto Alves",
+      "foto_url": null,
+      "telefone_ficticio": "(21) 90000-0000",
+      "email_ficticio": "001248@exemplo.invalid",
+      "endereco_ficticio": "Rua de Demonstração, s/n — Rio de Janeiro/RJ",
+      "area_id": "AR01",
+      "lider_id": "L0801",
+      "funcao": "Equipe operacional",
+      "turno": "08:00–18:00",
+      "convocacao": {
+        "status": "CONFIRMADO",
+        "canal": "EMAIL",
+        "respondida_em_ficticio": "2026-10-23T15:10:00-03:00"
+      },
+      "formulario": {
+        "status": "CONCLUIDO"
+      },
+      "apto_operacao": true,
+      "status_presenca": "NAO_REGISTRADA",
+      "pacote": {
+        "total_obrigatorios": 3,
+        "documentos": [
+          {
+            "id": "DOC-1",
+            "nome": "Documento 1",
+            "modelo": "MODELO_1",
+            "status": "BLOQUEADO",
+            "versao_ativa": 1,
+            "versoes": [
+              {
+                "numero": 1,
+                "status": "ATIVA",
+                "assinada_em_ficticio": "2026-10-25T10:00:00-03:00"
+              }
+            ]
+          },
+          {
+            "id": "DOC-2",
+            "nome": "Documento 2",
+            "modelo": "MODELO_2",
+            "status": "PENDENTE",
+            "versao_ativa": 1,
+            "versoes": [
+              {
+                "numero": 1,
+                "status": "ATIVA",
+                "assinada_em_ficticio": null
+              }
+            ]
+          },
+          {
+            "id": "DOC-3",
+            "nome": "Documento 3",
+            "modelo": "MODELO_3",
+            "status": "PENDENTE",
+            "versao_ativa": 1,
+            "versoes": [
+              {
+                "numero": 1,
+                "status": "ATIVA",
+                "assinada_em_ficticio": null
+              }
+            ]
+          }
+        ],
+        "quantos_bloqueados": 1,
+        "status": "PARCIAL"
+      }
+    },
+    {
+      "participacao_id": "P005",
+      "evento_id": "EVT-001",
+      "grupo": "FUNCIONARIO_EVENTO",
+      "codigo_funcionario": "001249",
+      "nome_completo": "Larissa Mendes Rocha",
+      "foto_url": null,
+      "telefone_ficticio": "(21) 90000-0000",
+      "email_ficticio": "001249@exemplo.invalid",
+      "endereco_ficticio": "Rua de Demonstração, s/n — Rio de Janeiro/RJ",
+      "area_id": "AR01",
+      "lider_id": "L0804",
+      "funcao": "Equipe operacional",
+      "turno": "08:00–18:00",
+      "convocacao": {
+        "status": "CONFIRMADO",
+        "canal": "EMAIL",
+        "respondida_em_ficticio": "2026-10-23T15:10:00-03:00"
+      },
+      "formulario": {
+        "status": "CONCLUIDO"
+      },
+      "apto_operacao": true,
+      "status_presenca": "NAO_REGISTRADA",
+      "pacote": {
+        "total_obrigatorios": 3,
+        "documentos": [
+          {
+            "id": "DOC-1",
+            "nome": "Documento 1",
+            "modelo": "MODELO_1",
+            "status": "BLOQUEADO",
+            "versao_ativa": 1,
+            "versoes": [
+              {
+                "numero": 1,
+                "status": "ATIVA",
+                "assinada_em_ficticio": "2026-10-25T10:00:00-03:00"
+              }
+            ]
+          },
+          {
+            "id": "DOC-2",
+            "nome": "Documento 2",
+            "modelo": "MODELO_2",
+            "status": "BLOQUEADO",
+            "versao_ativa": 1,
+            "versoes": [
+              {
+                "numero": 1,
+                "status": "ATIVA",
+                "assinada_em_ficticio": "2026-10-25T10:00:00-03:00"
+              }
+            ]
+          },
+          {
+            "id": "DOC-3",
+            "nome": "Documento 3",
+            "modelo": "MODELO_3",
+            "status": "PENDENTE",
+            "versao_ativa": 1,
+            "versoes": [
+              {
+                "numero": 1,
+                "status": "ATIVA",
+                "assinada_em_ficticio": null
+              }
+            ]
+          }
+        ],
+        "quantos_bloqueados": 2,
+        "status": "PARCIAL"
+      }
+    },
+    {
+      "participacao_id": "P006",
+      "evento_id": "EVT-001",
+      "grupo": "FUNCIONARIO_EVENTO",
+      "codigo_funcionario": "001250",
+      "nome_completo": "Felipe dos Santos Braga",
+      "foto_url": null,
+      "telefone_ficticio": "(21) 90000-0000",
+      "email_ficticio": "001250@exemplo.invalid",
+      "endereco_ficticio": "Rua de Demonstração, s/n — Rio de Janeiro/RJ",
+      "area_id": "AR07",
+      "lider_id": "L0805",
+      "funcao": "Equipe operacional",
+      "turno": "08:00–18:00",
+      "convocacao": {
+        "status": "CONFIRMADO",
+        "canal": "EMAIL",
+        "respondida_em_ficticio": "2026-10-23T15:10:00-03:00"
+      },
+      "formulario": {
+        "status": "PENDENTE"
+      },
+      "apto_operacao": false,
+      "status_presenca": "NAO_REGISTRADA",
+      "pacote": {
+        "total_obrigatorios": 3,
+        "documentos": [
+          {
+            "id": "DOC-1",
+            "nome": "Documento 1",
+            "modelo": "MODELO_1",
+            "status": "PENDENTE",
+            "versao_ativa": 1,
+            "versoes": [
+              {
+                "numero": 1,
+                "status": "ATIVA",
+                "assinada_em_ficticio": null
+              }
+            ]
+          },
+          {
+            "id": "DOC-2",
+            "nome": "Documento 2",
+            "modelo": "MODELO_2",
+            "status": "PENDENTE",
+            "versao_ativa": 1,
+            "versoes": [
+              {
+                "numero": 1,
+                "status": "ATIVA",
+                "assinada_em_ficticio": null
+              }
+            ]
+          },
+          {
+            "id": "DOC-3",
+            "nome": "Documento 3",
+            "modelo": "MODELO_3",
+            "status": "PENDENTE",
+            "versao_ativa": 1,
+            "versoes": [
+              {
+                "numero": 1,
+                "status": "ATIVA",
+                "assinada_em_ficticio": null
+              }
+            ]
+          }
+        ],
+        "quantos_bloqueados": 0,
+        "status": "PENDENTE"
+      }
+    },
+    {
+      "participacao_id": "P007",
+      "evento_id": "EVT-001",
+      "grupo": "FUNCIONARIO_EVENTO",
+      "codigo_funcionario": "001251",
+      "nome_completo": "Clara Pontes Melo",
+      "foto_url": null,
+      "telefone_ficticio": "(21) 90000-0000",
+      "email_ficticio": "001251@exemplo.invalid",
+      "endereco_ficticio": "Rua de Demonstração, s/n — Rio de Janeiro/RJ",
+      "area_id": "AR06",
+      "lider_id": "L0802",
+      "funcao": "Equipe operacional",
+      "turno": "08:00–18:00",
+      "convocacao": {
+        "status": "CONFIRMADO",
+        "canal": "EMAIL",
+        "respondida_em_ficticio": "2026-10-23T15:10:00-03:00"
+      },
+      "formulario": {
+        "status": "CONCLUIDO"
+      },
+      "apto_operacao": true,
+      "status_presenca": "NAO_REGISTRADA",
+      "pacote": {
+        "total_obrigatorios": 3,
+        "documentos": [
+          {
+            "id": "DOC-1",
+            "nome": "Documento 1",
+            "modelo": "MODELO_1",
+            "status": "PENDENTE",
+            "versao_ativa": 1,
+            "versoes": [
+              {
+                "numero": 1,
+                "status": "ATIVA",
+                "assinada_em_ficticio": null
+              }
+            ]
+          },
+          {
+            "id": "DOC-2",
+            "nome": "Documento 2",
+            "modelo": "MODELO_2",
+            "status": "PENDENTE",
+            "versao_ativa": 1,
+            "versoes": [
+              {
+                "numero": 1,
+                "status": "ATIVA",
+                "assinada_em_ficticio": null
+              }
+            ]
+          },
+          {
+            "id": "DOC-3",
+            "nome": "Documento 3",
+            "modelo": "MODELO_3",
+            "status": "PENDENTE",
+            "versao_ativa": 1,
+            "versoes": [
+              {
+                "numero": 1,
+                "status": "ATIVA",
+                "assinada_em_ficticio": null
+              }
+            ]
+          }
+        ],
+        "quantos_bloqueados": 0,
+        "status": "PENDENTE"
+      }
+    },
+    {
+      "participacao_id": "P008",
+      "evento_id": "EVT-001",
+      "grupo": "FUNCIONARIO_EVENTO",
+      "codigo_funcionario": "001252",
+      "nome_completo": "Rafael Souza Matos",
+      "foto_url": null,
+      "telefone_ficticio": "(21) 90000-0000",
+      "email_ficticio": "001252@exemplo.invalid",
+      "endereco_ficticio": "Rua de Demonstração, s/n — Rio de Janeiro/RJ",
+      "area_id": "AR03",
+      "lider_id": "L0803",
+      "funcao": "Equipe operacional",
+      "turno": "08:00–18:00",
+      "convocacao": {
+        "status": "CONFIRMADO",
+        "canal": "EMAIL",
+        "respondida_em_ficticio": "2026-10-23T15:10:00-03:00"
+      },
+      "formulario": {
+        "status": "CONCLUIDO"
+      },
+      "apto_operacao": true,
+      "status_presenca": "NAO_REGISTRADA",
+      "pacote": {
+        "total_obrigatorios": 3,
+        "documentos": [
+          {
+            "id": "DOC-1",
+            "nome": "Documento 1",
+            "modelo": "MODELO_1",
+            "status": "BLOQUEADO",
+            "versao_ativa": 1,
+            "versoes": [
+              {
+                "numero": 1,
+                "status": "ATIVA",
+                "assinada_em_ficticio": "2026-10-25T10:00:00-03:00"
+              }
+            ]
+          },
+          {
+            "id": "DOC-2",
+            "nome": "Documento 2",
+            "modelo": "MODELO_2",
+            "status": "BLOQUEADO",
+            "versao_ativa": 1,
+            "versoes": [
+              {
+                "numero": 1,
+                "status": "ATIVA",
+                "assinada_em_ficticio": "2026-10-25T10:00:00-03:00"
+              }
+            ]
+          },
+          {
+            "id": "DOC-3",
+            "nome": "Documento 3",
+            "modelo": "MODELO_3",
+            "status": "BLOQUEADO",
+            "versao_ativa": 1,
+            "versoes": [
+              {
+                "numero": 1,
+                "status": "ATIVA",
+                "assinada_em_ficticio": "2026-10-25T10:00:00-03:00"
+              }
+            ]
+          }
+        ],
+        "quantos_bloqueados": 3,
+        "status": "BLOQUEADO"
+      }
+    },
+    {
+      "participacao_id": "PI01",
+      "evento_id": "EVT-001",
+      "grupo": "INTERMITENTE",
+      "codigo_funcionario": "002001",
+      "nome_completo": "Patrícia de Oliveira Freitas",
+      "foto_url": null,
+      "telefone_ficticio": "(21) 90000-0000",
+      "email_ficticio": "002001@exemplo.invalid",
+      "endereco_ficticio": "Rua de Demonstração, s/n — Rio de Janeiro/RJ",
+      "area_id": "AR09",
+      "lider_id": "L0901",
+      "funcao": "Equipe operacional",
+      "turno": "08:00–18:00",
+      "convocacao": {
+        "status": "CONFIRMADO",
+        "canal": "EMAIL",
+        "respondida_em_ficticio": "2026-10-23T15:10:00-03:00"
+      },
+      "formulario": {
+        "status": "CONCLUIDO"
+      },
+      "apto_operacao": true,
+      "status_presenca": "NAO_REGISTRADA",
+      "pacote": {
+        "total_obrigatorios": 3,
+        "documentos": [
+          {
+            "id": "DOC-1",
+            "nome": "Documento 1",
+            "modelo": "MODELO_1",
+            "status": "PENDENTE",
+            "versao_ativa": 1,
+            "versoes": [
+              {
+                "numero": 1,
+                "status": "ATIVA",
+                "assinada_em_ficticio": null
+              }
+            ]
+          },
+          {
+            "id": "DOC-2",
+            "nome": "Documento 2",
+            "modelo": "MODELO_2",
+            "status": "PENDENTE",
+            "versao_ativa": 1,
+            "versoes": [
+              {
+                "numero": 1,
+                "status": "ATIVA",
+                "assinada_em_ficticio": null
+              }
+            ]
+          },
+          {
+            "id": "DOC-3",
+            "nome": "Documento 3",
+            "modelo": "MODELO_3",
+            "status": "PENDENTE",
+            "versao_ativa": 1,
+            "versoes": [
+              {
+                "numero": 1,
+                "status": "ATIVA",
+                "assinada_em_ficticio": null
+              }
+            ]
+          }
+        ],
+        "quantos_bloqueados": 0,
+        "status": "PENDENTE"
+      }
+    },
+    {
+      "participacao_id": "PI02",
+      "evento_id": "EVT-001",
+      "grupo": "INTERMITENTE",
+      "codigo_funcionario": "002002",
+      "nome_completo": "Diego Augusto Carvalho",
+      "foto_url": null,
+      "telefone_ficticio": "(21) 90000-0000",
+      "email_ficticio": "002002@exemplo.invalid",
+      "endereco_ficticio": "Rua de Demonstração, s/n — Rio de Janeiro/RJ",
+      "area_id": "AR09",
+      "lider_id": "L0901",
+      "funcao": "Equipe operacional",
+      "turno": "08:00–18:00",
+      "convocacao": {
+        "status": "NAO_RESPONDEU",
+        "canal": "EMAIL",
+        "respondida_em_ficticio": null
+      },
+      "formulario": {
+        "status": "NAO_INICIADO"
+      },
+      "apto_operacao": false,
+      "status_presenca": "NAO_REGISTRADA",
+      "pacote": {
+        "total_obrigatorios": 3,
+        "documentos": [
+          {
+            "id": "DOC-1",
+            "nome": "Documento 1",
+            "modelo": "MODELO_1",
+            "status": "PENDENTE",
+            "versao_ativa": 1,
+            "versoes": [
+              {
+                "numero": 1,
+                "status": "ATIVA",
+                "assinada_em_ficticio": null
+              }
+            ]
+          },
+          {
+            "id": "DOC-2",
+            "nome": "Documento 2",
+            "modelo": "MODELO_2",
+            "status": "PENDENTE",
+            "versao_ativa": 1,
+            "versoes": [
+              {
+                "numero": 1,
+                "status": "ATIVA",
+                "assinada_em_ficticio": null
+              }
+            ]
+          },
+          {
+            "id": "DOC-3",
+            "nome": "Documento 3",
+            "modelo": "MODELO_3",
+            "status": "PENDENTE",
+            "versao_ativa": 1,
+            "versoes": [
+              {
+                "numero": 1,
+                "status": "ATIVA",
+                "assinada_em_ficticio": null
+              }
+            ]
+          }
+        ],
+        "quantos_bloqueados": 0,
+        "status": "PENDENTE"
+      }
+    },
+    {
+      "participacao_id": "PI03",
+      "evento_id": "EVT-001",
+      "grupo": "INTERMITENTE",
+      "codigo_funcionario": "002003",
+      "nome_completo": "Renata Cavalcante Silva",
+      "foto_url": null,
+      "telefone_ficticio": "(21) 90000-0000",
+      "email_ficticio": "002003@exemplo.invalid",
+      "endereco_ficticio": "Rua de Demonstração, s/n — Rio de Janeiro/RJ",
+      "area_id": "AR09",
+      "lider_id": "L0901",
+      "funcao": "Equipe operacional",
+      "turno": "08:00–18:00",
+      "convocacao": {
+        "status": "NAO_CONFIRMADO",
+        "canal": "EMAIL",
+        "respondida_em_ficticio": "2026-10-23T15:10:00-03:00"
+      },
+      "formulario": {
+        "status": "NAO_INICIADO"
+      },
+      "apto_operacao": false,
+      "status_presenca": "NAO_REGISTRADA",
+      "pacote": {
+        "total_obrigatorios": 3,
+        "documentos": [
+          {
+            "id": "DOC-1",
+            "nome": "Documento 1",
+            "modelo": "MODELO_1",
+            "status": "PENDENTE",
+            "versao_ativa": 1,
+            "versoes": [
+              {
+                "numero": 1,
+                "status": "ATIVA",
+                "assinada_em_ficticio": null
+              }
+            ]
+          },
+          {
+            "id": "DOC-2",
+            "nome": "Documento 2",
+            "modelo": "MODELO_2",
+            "status": "PENDENTE",
+            "versao_ativa": 1,
+            "versoes": [
+              {
+                "numero": 1,
+                "status": "ATIVA",
+                "assinada_em_ficticio": null
+              }
+            ]
+          },
+          {
+            "id": "DOC-3",
+            "nome": "Documento 3",
+            "modelo": "MODELO_3",
+            "status": "PENDENTE",
+            "versao_ativa": 1,
+            "versoes": [
+              {
+                "numero": 1,
+                "status": "ATIVA",
+                "assinada_em_ficticio": null
+              }
+            ]
+          }
+        ],
+        "quantos_bloqueados": 0,
+        "status": "PENDENTE"
+      }
+    },
+    {
+      "participacao_id": "P201",
+      "evento_id": "EVT-002",
+      "grupo": "FUNCIONARIO_EVENTO",
+      "codigo_funcionario": "003001",
+      "nome_completo": "Camila Monteiro Nunes",
+      "foto_url": null,
+      "telefone_ficticio": "(21) 90000-0000",
+      "email_ficticio": "003001@exemplo.invalid",
+      "endereco_ficticio": "Rua de Demonstração, s/n — Rio de Janeiro/RJ",
+      "area_id": "AR01",
+      "lider_id": "L0810",
+      "funcao": "Equipe operacional",
+      "turno": "08:00–18:00",
+      "convocacao": {
+        "status": "CONFIRMADO",
+        "canal": "EMAIL",
+        "respondida_em_ficticio": "2026-10-23T15:10:00-03:00"
+      },
+      "formulario": {
+        "status": "CONCLUIDO"
+      },
+      "apto_operacao": true,
+      "status_presenca": "NAO_REGISTRADA",
+      "pacote": {
+        "total_obrigatorios": 3,
+        "documentos": [
+          {
+            "id": "DOC-1",
+            "nome": "Documento 1",
+            "modelo": "MODELO_1",
+            "status": "PENDENTE",
+            "versao_ativa": 1,
+            "versoes": [
+              {
+                "numero": 1,
+                "status": "ATIVA",
+                "assinada_em_ficticio": null
+              }
+            ]
+          },
+          {
+            "id": "DOC-2",
+            "nome": "Documento 2",
+            "modelo": "MODELO_2",
+            "status": "PENDENTE",
+            "versao_ativa": 1,
+            "versoes": [
+              {
+                "numero": 1,
+                "status": "ATIVA",
+                "assinada_em_ficticio": null
+              }
+            ]
+          },
+          {
+            "id": "DOC-3",
+            "nome": "Documento 3",
+            "modelo": "MODELO_3",
+            "status": "PENDENTE",
+            "versao_ativa": 1,
+            "versoes": [
+              {
+                "numero": 1,
+                "status": "ATIVA",
+                "assinada_em_ficticio": null
+              }
+            ]
+          }
+        ],
+        "quantos_bloqueados": 0,
+        "status": "PENDENTE"
+      }
+    }
+  ],
+  "destaques": [
+    {
+      "id": "DST1",
+      "tipo": "AVISO",
+      "titulo": "Revisar convocações pendentes",
+      "descricao": "Exemplo de notificação futura."
+    },
+    {
+      "id": "DST2",
+      "tipo": "DOCUMENTOS",
+      "titulo": "Pacotes 1/3 e 2/3",
+      "descricao": "Acompanhe o progresso por área e liderança."
+    }
+  ],
+  "auditoria_exemplo_futura": [
+    {
+      "ocorrido_em": "2026-10-25T10:00:00-03:00",
+      "grupo": "FUNCIONARIO_EVENTO",
+      "evento_id": "EVT-001",
+      "usuario_ficticio": "Operador de demonstração",
+      "acao": "CONFIRMOU_ASSINATURA",
+      "entidade": "DOC-1 / P001",
+      "motivo": null
+    }
+  ],
+  "exportacao_simulada": {
+    "evento_id": "EVT-001",
+    "grupo": "FUNCIONARIO_EVENTO",
+    "versao_lote": 1,
+    "status": "AGUARDANDO_FECHAMENTO"
+  },
+  "convencoes": {
+    "separacao": "Filtrar SEMPRE por evento_id + grupo; funções de funcionário só para apto_operacao true, salvo lista Convocados.",
+    "status_convocacao": [
+      "CONFIRMADO",
+      "NAO_RESPONDEU",
+      "NAO_CONFIRMADO"
+    ],
+    "status_documento": [
+      "PENDENTE",
+      "BLOQUEADO",
+      "EM_CORRECAO",
+      "SUBSTITUIDO"
+    ],
+    "pacote_bloqueado": "só depois de 3 documentos bloqueados e conferência; fixture ilustra contagem, sem operação real",
+    "textos_interface": "CONFIRMADO → Confirmado; NAO_RESPONDEU → Não respondeu; NAO_CONFIRMADO → Não confirmado (recusou)",
+    "simulacao_escalabilidade": "Para demonstrar 3.000 participantes, gerar dados locais artificiais apenas quando necessário, mantendo ids únicos e segregação por grupo/evento."
+  }
+}
