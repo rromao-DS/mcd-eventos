@@ -312,7 +312,7 @@ const CONTR={};
 PEOPLE.filter(p=>p.evt==='EVT-001'&&p.grupo===FE&&p.conv==='CONFIRMADO'&&p.form==='CONCLUIDO'&&!CONTR[p.codigo]).forEach(p=>{if(R()<.1)CONTR[p.codigo]={titulo:R()<.5?'Contrato de trabalho intermitente':'Termo de ciência da política de conduta',status:'PENDENTE'}});
 PEOPLE.forEach(p=>{if(p.conferido)p.reg=[{ts:'2026-10-25T09:58',tipo:'PACOTE_ABERTO'},{ts:'2026-10-25T10:09',tipo:'PACOTE_CONFIRMADO'}]});
 /* ---------- estado ---------- */
-const S={perfil:'admin',route:{screen:'login'},offline:false,mes:'2026-10',pg:{},filt:{},dismissed:[],lotes:{},jornada:{},aprov:{},reqs:[],audit:[],showAudit:false,reveal:{},seq:1,fail:false};
+const S={perfil:'admin',route:{screen:'login'},offline:false,mes:'2026-10',pg:{},filt:{},dismissed:[],lotes:{},jornada:{},aprov:{},reqs:[],audit:[],showAudit:false,reveal:{},seq:1,fail:false,autoEntrega:true};
 const AUDIT_SEED=[
  ['2026-10-25 10:02','Operador de demonstração','CONFIRMOU_ASSINATURA','DOC-1 / P001','—'],
  ['2026-10-25 10:05','Operador de demonstração','CONFIRMOU_ASSINATURA','DOC-2 / P001','—'],
@@ -533,6 +533,7 @@ function tResumo(e,g){
    <div class="grid g4">${kpi(s.formPend,'Formulários pendentes')}${kpi(s.aptos,'Aptos na operação')}${kpi(s.conferidos+'/'+s.aptos,'Pacotes conferidos')}${kpi(s.pend,'Pendentes de conclusão')}</div>
    <div class="grid g3">${sc('Convocados','Todos os convidados, inclusive recusados e sem resposta.','convocados','📋')}${sc(g===FE?'Áreas/Alocação':'Equipes','Área → liderança → funcionários → ficha.','areas','🧭')}${sc('Documentos','Pendências e pacotes de 3 documentos.','documentos','📄')}
    ${fe?sc('Fechamento de Folha','Checklist, lote bloqueado e entrega simulada.','folha','🧾')+sc('Relatórios','Convocados, documentos e alocação.','relatorios','📊')+sc('Auditoria / Backlog','Planejado para fase futura.','auditoria','🕘'):''}</div>
+   ${fe&&s.aptos>0&&s.pend===0&&!loteAtual(e.id,g)?`<div class="notice ok"><b>Todas as assinaturas estão concluídas.</b> O lote já pode ser fechado em Fechamento de Folha.</div>`:''}
    ${fe?'':`<div class="notice int"><b>Fechamento de folha dos Intermitentes:</b> regra a definir com o DP (A VALIDAR). Este módulo <b>não herda</b> o fluxo de folha de Funcionários do Evento e tem lote e exportação próprios.</div>`}
    <p class="tiny muted">Amostra de demonstração com ${s.total} pessoas neste grupo. Na solução real o cenário de referência é de 3.000 pessoas por evento, com tabelas paginadas e busca por código.</p>`;
 }
@@ -619,7 +620,7 @@ function tFicha(e,g){
     return `<div class="docc ${d.status==='BLOQUEADO'?'locked':d.status==='EM_CORRECAO'?'corr':''}"><div class="row between"><h3>${d.nome}</h3>${d.status==='BLOQUEADO'?chip('🔒 Assinado e bloqueado','ok'):d.status==='EM_CORRECAO'?chip('Em correção','warn'):chip('Pendente','')}</div>
      <div class="small muted">Versão ${d.status==='BLOQUEADO'&&ativa?ativa.v:v.v}${ativa?` · assinado em ${fmtTs(ativa.em)}<br>Operador: ${esc(ativa.por)}`:''}</div>
      ${d.status==='BLOQUEADO'?`<div class="lock small">Edição bloqueada</div>`:''}
-     <div class="row" style="gap:8px">${d.status==='BLOQUEADO'?`${purged(p)?'<span class="chip info">PDF arquivado no Drive</span>':`<button class="btn sm" data-act="viewer" data-id="${p.id}" data-n="${d.n}">Ver PDF</button>`}${can('reabrir')||can('solicitar')?`<button class="btn sm" data-act="reopen" data-id="${p.id}" data-n="${d.n}">${can('reabrir')?'Reabrir (autorizado)':'Solicitar correção'}</button>`:''}`
+     <div class="row" style="gap:8px">${d.status==='BLOQUEADO'?`${purged(p)?'<span class="chip info">PDF arquivado no Drive</span>':`<button class="btn sm" data-act="viewer" data-id="${p.id}" data-n="${d.n}">Ver PDF</button>`}${can('reabrir')||can('solicitar')?`<button class="btn sm" data-act="reopen" data-id="${p.id}" data-n="${d.n}">${can('reabrir')?'Desbloquear para reassinar':'Solicitar desbloqueio'}</button>`:''}`
        :`<button class="btn sm primary" data-act="viewer" data-id="${p.id}" data-n="${d.n}" ${apto(p)&&can('assinar')?'':'disabled'}>Abrir e assinar</button>`}</div>
      ${d.versoes.length>1?`<details><summary>Histórico de versões (${d.versoes.length})</summary><div class="small stack" style="gap:4px;margin-top:6px">${d.versoes.slice().reverse().map(x=>`<div>v${x.v} · ${x.estado==='SUBSTITUIDA'?'Substituída (preservada)':x.estado==='ATIVA'?'Ativa':'Aguardando assinatura'}${x.em?' · '+fmtTs(x.em):''}</div>`).join('')}</div></details>`:''}</div>`}).join('')}</div>
   ${reqs.length?`<div class="notice warn"><b>Solicitações de reabertura aguardando autorização:</b> ${reqs.map(r=>`Documento ${r.n} — “${esc(r.motivo)}”`).join('; ')}. ${can('reabrir')?'':'Somente perfil autorizado aprova.'}</div>`:''}
@@ -642,7 +643,7 @@ function tDocumentos(e,g){
   return `<div class="row between"><div><div class="eyebrow">${GR[g].nome}</div><h1>Documentos e pendências</h1></div>
    <button class="btn" data-act="demo-sign" ${can('assinar')?'':'disabled'}>⚡ Atalho de demonstração: concluir pendências</button></div>
   <div class="grid g4">${kpi(s.aptos,'Aptos')}${kpi(s.conferidos,'Pacotes conferidos')}${kpi(s.pend,'Pendentes')}${kpi(s.corr+reqs.length,'Correções em aberto')}</div>
-  ${reqs.length?`<div class="card flat"><h3>Solicitações de reabertura</h3>${reqs.map(r=>{const p=person(r.pid);return `<div class="row between" style="padding:10px 0;border-bottom:1px solid var(--border)"><div class="small"><b>${p.codigo} — ${esc(p.nome)}</b> · Documento ${r.n}<br><span class="muted">Motivo: ${esc(r.motivo)} · por ${esc(r.por)}</span></div><button class="btn sm primary" data-act="aprovar-req" data-id="${r.id}" ${can('reabrir')?'':'disabled title="Somente perfil autorizado"'}>Aprovar reabertura</button></div>`}).join('')}</div>`:''}
+  ${reqs.length?`<div class="card flat"><h3>Solicitações de desbloqueio</h3>${reqs.map(r=>{const p=person(r.pid);return `<div class="row between" style="padding:10px 0;border-bottom:1px solid var(--border)"><div class="small"><b>${p.codigo} — ${esc(p.nome)}</b> · Documento ${r.n}<br><span class="muted">Motivo: ${esc(r.motivo)} · por ${esc(r.por)}</span></div><button class="btn sm primary" data-act="aprovar-req" data-id="${r.id}" ${can('reabrir')?'':'disabled title="Somente perfil autorizado"'}>Aprovar desbloqueio</button></div>`}).join('')}</div>`:''}
   <div class="filters">${fq(key,'Código ou nome')}${fsel(key,'area','Área',AREAS.map(a=>[a,a]))}${fsel(key,'lider','Liderança',ls.map(l=>[l.id,l.codigo+' — '+l.nome]))}${fsel(key,'st','Situação',[['PEND','Não conferido'],['CORR','Em correção'],['CONF','Conferido'],['0','0/3'],['1','1/3'],['2','2/3'],['3','3/3']])}</div>
   ${pg.total?`<div class="tw"><table><thead><tr><th>Código</th><th>Nome</th><th>Área</th><th>Liderança</th><th>Documentos</th><th>Pacote</th><th></th></tr></thead><tbody>${pg.items.map(p=>{const k=pacote(p),l=leader(p.lider);
    return `<tr class="click" data-act="pessoa" data-id="${p.id}"><td class="mono">${p.codigo}</td><td><b>${esc(p.nome)}</b></td><td>${p.area}</td><td class="small">${l.codigo}</td><td>${pp(done(p))}</td><td>${chip((k.lock?'🔒 ':'')+k.label,k.tone)}${p.excecao?' '+chip('Exceção','warn'):''}</td>
@@ -668,17 +669,19 @@ function tFolha(e,g){
   const s=stats(e.id,g);
   const ret=atual&&atual.retificacao;
   return `<div><div class="eyebrow">Funcionários do Evento</div><h1>Fechamento de Folha do evento</h1><p class="muted">Exclusivo deste módulo. O fluxo de folha dos Intermitentes será definido à parte.</p></div>
+  ${items[0].ok&&!atual?`<div class="notice ok"><b>Todas as assinaturas e conferências estão concluídas.</b> Falta fechar o lote${items.every(i=>i.ok)?'':' (veja os itens abaixo)'}.</div>`:''}
   <div class="card"><div class="row between"><h3>Checklist de fechamento</h3><div class="row">${pp(Math.round(s.conferidos/(s.aptos||1)*3))}<span class="small muted">${s.conferidos}/${s.aptos} pacotes</span></div></div>
    <div class="bar" style="margin:10px 0"><i style="width:${s.aptos?Math.round((s.conferidos+s.excecoes)/s.aptos*100):0}%"></i></div>
    ${items.map(i=>`<div class="check"><span class="ci ${i.ok?'ok':'no'}">${i.ok?'✓':'!'}</span><div><b>${i.t}</b><div class="small muted">${i.d}</div></div><div>${i.a}</div></div>`).join('')}
    <div class="notice small" style="margin-top:12px">3/3 em todos os pacotes <b>não fecha</b> o lote sozinho: o fechamento exige este checklist completo e uma ação explícita do gestor.</div>
    ${ret?`<div class="notice warn" style="margin-top:12px"><b>Retificação necessária:</b> um documento foi reaberto depois do fechamento. O lote v${atual.versao} permanece imutável; conclua o checklist e feche uma nova versão (v${atual.versao+1}).</div>`:''}
+   <label class="row small" style="gap:8px;margin-top:12px"><input type="checkbox" data-in="auto" ${S.autoEntrega?'checked':''}> Iniciar a entrega ao Drive e à contabilidade assim que o lote for fechado</label>
    <div class="row" style="margin-top:14px"><button class="btn primary" data-act="fechar" ${allok&&can('fechar')&&(aberto||ret)?'':'disabled'}>🔒 Fechar e bloquear lote${atual&&ret?' (nova versão)':''}</button>
    ${!can('fechar')?'<span class="small muted">Seu perfil não pode fechar o lote.</span>':!allok?'<span class="small muted">Complete o checklist para liberar.</span>':''}</div></div>
   ${atual?tLote(e,g,atual):`<div class="card empty"><div style="font-size:34px">📦</div><b>Nenhum lote fechado ainda</b><span class="small">Ao fechar, o lote de Funcionários do Evento ganha identificador, versão e manifesto.</span></div>`}
   ${lotes.length>1?`<div class="card flat"><h3>Lotes anteriores (imutáveis)</h3>${lotes.slice(0,-1).map(l=>`<div class="row between small" style="padding:8px 0;border-bottom:1px solid var(--border)"><span><b>${l.id}</b> · fechado em ${fmtTs(l.em)}</span>${chip('Substituído por v'+(l.versao+1),'')}</div>`).join('')}</div>`:''}`;
 }
-const dst=[['banco','Metadados do lote no banco do app (ficam para relatórios e consulta)'],['drive','Arquivos do lote no Google Drive ou Dropbox (pasta ano/evento/grupo/versão)'],['contab','Disponível para a contabilidade'],['limpeza','Remoção dos PDFs do armazenamento do app (só depois da entrega confirmada)']];
+const dst=[['banco','Metadados do lote no banco do app (ficam para relatórios e consulta)'],['drive','Arquivos do lote no Google Drive ou Dropbox (pasta ano/evento/grupo/versão)'],['contab','Disponível para a contabilidade (no site, com aviso por e-mail simulado)'],['limpeza','Remoção dos PDFs do armazenamento do app (só depois da entrega confirmada)']];
 const stChip=s=>s==='ENTREGUE'?chip('Entregue','ok'):s==='PROCESSANDO'?`<span class="chip info"><span class="spin"></span> Processando</span>`:s==='ERRO'?chip('Erro — tentar novamente','bad'):chip('Aguardando','warn');
 function tLote(e,g,l){
   const busy=dst.some(([k])=>l.ent[k]==='PROCESSANDO'),all=dst.every(([k])=>l.ent[k]==='ENTREGUE'),err=dst.some(([k])=>l.ent[k]==='ERRO');
@@ -688,6 +691,7 @@ function tLote(e,g,l){
    <h3 style="margin-top:16px">Entrega simulada</h3><div class="notice info small" style="margin:8px 0">Segurança e peso: depois que o Drive e a contabilidade confirmarem o recebimento, os PDFs saem do banco do app. O app guarda apenas os metadados do evento. A guarda dos arquivos passa a ser do Drive e da contabilidade (política a validar).</div><div class="notice warn small" style="margin:8px 0">Nada é enviado de verdade: banco, Google Drive e contabilidade são simulados neste protótipo. “Entregue” só aparece depois do sucesso simulado de cada destino.</div>
    ${dst.map(([k,t])=>`<div class="check"><span class="ci ${l.ent[k]==='ENTREGUE'?'ok':l.ent[k]==='ERRO'?'no':'wait'}">${l.ent[k]==='ENTREGUE'?'✓':l.ent[k]==='ERRO'?'!':'…'}</span><div><b>${t}</b><div class="small muted">${l.ent[k]==='ENTREGUE'?(k==='limpeza'?'Removidos em '+fmtTs(l.entEm[k])+'. No app ficam só os metadados: manifesto, contagens e hash dos arquivos.':'Confirmado em '+fmtTs(l.entEm[k])+' (v'+l.versao+')'):l.ent[k]==='ERRO'?(l.erro||'Falha simulada'):'Ainda não enviado'}</div></div><div>${k==='limpeza'&&l.ent[k]==='ENTREGUE'?chip('PDFs removidos do app','ok'):stChip(l.ent[k])}</div></div>`).join('')}
    <div class="row" style="margin-top:12px">${all?'':`<button class="btn primary" data-act="enviar" data-m="ok" ${busy||!can('exportar')?'disabled':''}>${err?'Tentar novamente':'Simular envio (sucesso)'}</button><button class="btn" data-act="enviar" data-m="falha" ${busy||err||!can('exportar')?'disabled':''}>Simular falha no Drive</button>`}
+   ${can('exportar')?(l.ent.limpeza==='ENTREGUE'?'<span class="small muted">Arquivos no Drive: a contabilidade acessa por lá.</span>':'<button class="btn" data-act="download2">Baixar lote pelo site (simulado)</button>'):''}
    ${all?'<span class="small muted">Para corrigir depois da entrega, é preciso criar uma nova versão do lote; a versão entregue nunca é alterada.</span>':''}</div></div>`;
 }
 /* --- Relatórios --- */
@@ -770,7 +774,7 @@ function openViewer(id,n,mode){
     ${clauses}
     <div class="sigrow"><div class="sigcol">${campo}<div class="sigline">Assinatura do trabalhador</div></div>
     <div class="datecol"><div class="datefield ${locked?'done':''}" id="datefield">${locked&&when?dBR(when.slice(0,10)):'Preenchida ao confirmar'}</div><div class="sigline">Data</div></div></div></article></div>
-   <aside class="sigpanel">${locked?`<div class="notice ok"><b>🔒 ${contrato?'Contrato assinado.':'Documento assinado e bloqueado.'}</b><br>${contrato?'':'Versão '+ativa.v+' · '}${fmtTs(when)}${contrato?'':'<br>Operador: '+esc(ativa.por)}</div>${contrato?'':'<p class="small muted">Para corrigir, use “Reabrir” na ficha. A versão atual será preservada no histórico.</p>'}`:
+   <aside class="sigpanel">${locked?`<div class="notice ok"><b>🔒 ${contrato?'Contrato assinado.':'Documento assinado e bloqueado.'}</b><br>${contrato?'':'Versão '+ativa.v+' · '}${fmtTs(when)}${contrato?'':'<br>Operador: '+esc(ativa.por)}</div>${contrato?'':'<p class="small muted">Para corrigir, use “Desbloquear para reassinar” na ficha. O pedido fica registrado (quem e quando).</p>'}`:
     `<h3>Assinatura</h3><div class="notice warn small"><b>Demonstração:</b> esta assinatura desenhada não tem validade jurídica.</div>
      <ol class="small muted" style="margin:0;padding-left:18px"><li>Leia o PDF.</li><li>O trabalhador assina com a caneta no campo amarelo.</li><li>Confirme. A data é preenchida automaticamente.</li></ol>
      <button class="btn" data-act="gotosig">↓ Ir ao campo de assinatura</button>
@@ -824,6 +828,7 @@ const ACT={
  page(el){S.pg[el.dataset.k]=(S.pg[el.dataset.k]||0)+ +el.dataset.d;render()},
  reveal(el){S.reveal[el.dataset.id]=1;log(S.route.grupo,S.route.evt,'VISUALIZOU_DADOS_RESTRITOS',el.dataset.id,'');render()},
  download(){toast('Download simulado: nenhum arquivo foi gerado')},
+ download2(){toast('Download simulado do lote: nenhum arquivo foi gerado')},
  'arq-view'(el){const e=evt(el.dataset.id);dialog({title:e.nome,wide:1,body:`<div class="notice info small">Evento arquivado há ${diffDias(BASE,e.data)} dias. Somente leitura.</div><div class="grid g2"><div class="card flat"><h4>${GR[FE].nome}</h4><p class="small muted">Lote v1: metadados no app, PDFs no Drive.</p></div><div class="card flat"><h4>${GR[INT].nome}</h4><p class="small muted">Lote próprio: metadados no app, PDFs no Drive.</p></div></div><p class="small muted">Os grupos continuam separados também no arquivo. O app não guarda os PDFs depois da entrega; a política de retenção do Drive será definida com jurídico e DP.</p>`,actions:[{label:'Fechar',cls:'primary',fn:closeDlg}]})},
  invite(){
   const r=S.route,e=evt(r.evt),g=r.grupo,ls=LEADERS.filter(l=>l.evt===e.id&&l.grupo===g);
@@ -882,8 +887,8 @@ const ACT={
  conferir(el){const p=person(el.dataset.id);confirmDlg('Conferir e bloquear o pacote?',`O pacote individual de <b>${esc(p.nome)}</b> (3/3) será conferido e bloqueado. Isso não fecha o lote do evento.`,'Conferir e bloquear',()=>{p.conferido=true;reg(p,'PACOTE_CONFIRMADO');log(p.grupo,p.evt,'CONFERIU_PACOTE','PACOTE / '+p.id,'');toast('Pacote conferido e bloqueado');render()})},
  reopen(el){
   const p=person(el.dataset.id),n=+el.dataset.n,d=p.docs[n-1],auth=can('reabrir');
-  dialog({title:(auth?'Reabrir ':'Solicitar correção do ')+d.nome,body:`<div class="notice warn small">A versão atual será <b>preservada</b> no histórico e uma nova versão será criada para nova assinatura. Nada é apagado.${auth?'':' Sua solicitação precisa ser aprovada por perfil autorizado.'}</div><label class="f">Motivo (obrigatório)<textarea id="rp-m" placeholder="Explique o motivo da correção"></textarea></label><div id="rp-e" class="notice bad small" hidden>Informe um motivo com pelo menos 10 caracteres.</div>`,
-   actions:[{label:'Cancelar',fn:closeDlg},{label:auth?'Reabrir documento':'Enviar solicitação',cls:'primary',fn:()=>{const m=$('#rp-m').value.trim();if(m.length<10){$('#rp-e').hidden=false;return}
+  dialog({title:(auth?'Desbloquear ':'Solicitar desbloqueio de ')+d.nome,body:`<div class="notice warn small">A assinatura sai do documento, que volta em branco para nova assinatura. O backend registra quem pediu o desbloqueio e quando, e guarda a versão anterior fora da tela operacional (ela nunca é apagada).${auth?'':' Sua solicitação precisa ser aprovada por perfil autorizado.'}</div><label class="f">Motivo (obrigatório)<textarea id="rp-m" placeholder="Explique o motivo da correção"></textarea></label><div id="rp-e" class="notice bad small" hidden>Informe um motivo com pelo menos 10 caracteres.</div>`,
+   actions:[{label:'Cancelar',fn:closeDlg},{label:auth?'Desbloquear documento':'Enviar solicitação',cls:'primary',fn:()=>{const m=$('#rp-m').value.trim();if(m.length<10){$('#rp-e').hidden=false;return}
     if(auth){reabrir(p,n,m);}else{S.reqs.push({id:'R'+S.seq++,pid:p.id,n,motivo:m,por:PERFIS[S.perfil].nome,status:'PENDENTE',evt:p.evt,grupo:p.grupo});log(p.grupo,p.evt,'SOLICITOU_REABERTURA',`DOC-${n} / ${p.id}`,m);toast('Solicitação enviada para aprovação')}
     closeDlg();render()}}]});
  },
@@ -897,7 +902,7 @@ const ACT={
   confirmDlg('Fechar e bloquear o lote?',`O lote de <b>${GR[g].nome}</b> do evento <b>${esc(e.nome)}</b> será bloqueado e preparado para entrega. O lote do outro grupo <b>não</b> é afetado.`,'Fechar e bloquear',()=>{
     const arr=S.lotes[k]=S.lotes[k]||[];const v=arr.length+1;if(arr.length)arr[arr.length-1].estado='SUBSTITUIDO';
     arr.push({id:`LOTE-${e.id}-${GR[g].curto}-v${v}`,versao:v,grupo:g,em:nowSim().replace(' ','T'),por:PERFIS[S.perfil].nome,pessoas:s.aptos-s.excecoes,docs:(s.aptos-s.excecoes)*3,excecoes:s.excecoes,estado:'FECHADO',retificacao:false,ent:{banco:'AGUARDANDO',drive:'AGUARDANDO',contab:'AGUARDANDO',limpeza:'AGUARDANDO'},entEm:{}});
-    S.jornada[k]=S.jornada[k];log(g,e.id,'FECHOU_LOTE','LOTE v'+v,'');toast('Lote v'+v+' fechado e bloqueado');render()});
+    log(g,e.id,'FECHOU_LOTE','LOTE v'+v,'');toast('Lote v'+v+' fechado e bloqueado'+(S.autoEntrega?'. Entrega iniciada.':''));render();if(S.autoEntrega)envio('ok')});
  },
  enviar(el){envio(el.dataset.m)}
 };
@@ -906,7 +911,7 @@ function reabrir(p,n,motivo,viaReq){
   d.versoes.push({v:d.versoes.length+1,estado:'AGUARDANDO',em:null,por:null});p.conferido=false;
   const k=gkey(p.evt,p.grupo);delete S.aprov[k];const l=loteAtual(p.evt,p.grupo);if(l&&(l.estado==='FECHADO'||l.estado==='EXPORTADO'))l.retificacao=true;
   reg(p,'DOCUMENTO_REABERTO','Documento '+n);log(p.grupo,p.evt,viaReq?'APROVOU_REABERTURA':'REABRIU_DOCUMENTO',`DOC-${n} / ${p.id}`,motivo+' (v'+(d.versoes.length-1)+' preservada)');
-  toast('Documento reaberto: v'+(d.versoes.length-1)+' preservada, nova versão criada'+(l?'. O lote já fechado exige retificação.':''));
+  toast('Documento desbloqueado: assinatura removida da tela, v'+(d.versoes.length-1)+' guardada no backend'+(l?'. O lote já fechado exige retificação.':''));
 }
 function envio(modo){
   const r=S.route,l=loteAtual(r.evt,r.grupo);if(!l)return;
@@ -941,6 +946,7 @@ document.addEventListener('change',ev=>{
   const el=ev.target;if(!el.dataset)return;
   if(el.dataset.in==='perfil'){S.perfil=el.value;toast('Perfil: '+PERFIS[S.perfil].nome);const r=S.route;if(r.screen==='mod'&&!PERFIS[S.perfil].grupos.includes(r.grupo)){render();return}if(S.perfil==='lider'&&r.screen==='mod'&&r.tab==='areas'&&r.lider&&r.lider!=='L0801'){go({screen:'mod',evt:r.evt,grupo:r.grupo,tab:'areas'});return}render()}
   if(el.dataset.in==='showaudit'){S.showAudit=el.checked;render()}
+  if(el.dataset.in==='auto'){S.autoEntrega=el.checked;render()}
   if(el.dataset.in==='foto'&&el.files&&el.files[0]){const fr=new FileReader();fr.onload=()=>{DLG.foto=fr.result;const pv=$('#fm-prev');if(pv)pv.innerHTML=`<img src="${fr.result}" alt="Foto capturada">`};fr.readAsDataURL(el.files[0])}
 });
 document.addEventListener('keydown',ev=>{if(ev.key==='Escape'){if($('#dialog').innerHTML)closeDlg()}});
